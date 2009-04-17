@@ -1,40 +1,180 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2009 by PRAGMA ADE / ConTeXt Development Team
+%
+% See ConTeXt's mreadme.pdf for the license.
+%
+% This work consists of the main source file luaextra.dtx
+% and the derived file luaextra.lua.
+%
+% Unpacking and documentation:
+%    pdftex luaextra.dtx
+%
+%    The class ltxdoc loads the configuration file ltxdoc.cfg
+%    if available. Here you can specify further options, e.g.
+%    use A4 as paper format:
+%       \PassOptionsToClass{a4paper}{article}
+%
+%
+%
+%<*ignore>
+\begingroup
+
+\input docstrip.tex
+\Msg{************************************************************************}
+\Msg{* Installation}
+\Msg{* Package: luaextra 2009/03/19 v0.91 Lua additional functions.}
+\Msg{************************************************************************}
+
+\keepsilent
+\askforoverwritefalse
+
+\let\MetaPrefix\relax
+
+\preamble
+This is a generated file.
+
+Copyright (C) 2009 by PRAGMA ADE / ConTeXt Development Team
+
+See ConTeXt's mreadme.pdf for the license.
+
+This work consists of the main source file luaextra.dtx
+and the derived file luaextra.lua.
+
+\endpreamble
+
+\let\MetaPrefix\DoubleperCent
+
+\generate{%
+  \file{luaextra.drv}{\from{luaextra.dtx}{driver}}%
+}
+
+% The following hacks are to generate a lua file with lua comments starting by -- instead of %%
+
+\def\MetaPrefix{-- }
+
+\def\luapostamble{%
+  \MetaPrefix^^J%
+  \MetaPrefix\space End of File `\outFileName'.%
+}
+
+\def\currentpostamble{\luapostamble}%
+
+\generate{%
+  \usedir{luatex/lua/luaextra}%
+  \file{luaextra.lua}{\from{luaextra.dtx}{lua}}%
+}
+
+\obeyspaces
+\Msg{************************************************************************}
+\Msg{*}
+\Msg{* To finish the installation you have to move the following}
+\Msg{* files into a directory searched by TeX:}
+\Msg{*}
+\Msg{*     luaextra.lua}
+\Msg{*}
+\Msg{* Happy TeXing!}
+\Msg{*}
+\Msg{************************************************************************}
+
+\endgroup
+%</ignore>
+% \iffalse
+%<driver>
+%<driver>\NeedsTeXFormat{LaTeX2e}
+%<driver>\ProvidesPackage{luaextra.sty}
+%<driver>  [2009/04/15 v0.91 Lua additional functions.]
+%<driver>
+% \fi
+%<*driver>
+\documentclass{ltxdoc}
+\EnableCrossrefs
+\CodelineIndex
+\begin{document}
+  \DocInput{luaextra.dtx}%
+\end{document}
+%</driver>
+% \fi
+% \CheckSum{0}
+%
+% \CharacterTable
+%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%   Digits        \0\1\2\3\4\5\6\7\8\9
+%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%   Dollar        \$     Percent       \%     Ampersand     \&
+%   Acute accent  \'     Left paren    \(     Right paren   \)
+%   Asterisk      \*     Plus          \+     Comma         \,
+%   Minus         \-     Point         \.     Solidus       \/
+%   Colon         \:     Semicolon     \;     Less than     \<
+%   Equals        \=     Greater than  \>     Question mark \?
+%   Commercial at \@     Left bracket  \[     Backslash     \\
+%   Right bracket \]     Circumflex    \^     Underscore    \_
+%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%   Right brace   \}     Tilde         \~}
+%
+% \GetFileInfo{luaextra.drv}
+%
+% \title{The \textsf{luaextra} package}
+% \date{2009/04/15 v0.91}
+% \author{Elie Roux \\ \texttt{elie.roux@telecom-bretagne.eu}}
+%
+% \maketitle
+%
+% \begin{abstract}
+% Additional lua functions taken from the libs of Con\TeX t.
+% \end{abstract}
+%
+% \section{Overview}
+%
+% Lua is a very minimal language, and it does not have a lot of built-in functions. Some functions will certainly be needed by a lot of packages. Instead of making each of them implement these functions, the aim of this file is to provide a minimal set of functions. All functions are taken from Con\TeX t libraries.
+%
+% There are some differences with the Con\TeX t funtions though, especially on names: for example the \texttt{file.*} funtions are renamed in \texttt{fpath.*}. It seems more logical as they deal with file paths, not files. Also the \texttt{file.is\_readable} and \texttt{file.is\_writable} are renamed \texttt{lfs.is\_readable} and \texttt{lfs.is\_writable}.
+%
+% If you use a function you think is missing in this file, please tell the maintainer.
+%
+% \texttt{Warning:} Even if the names will certainly remain the same, some implementations may differ, and some functions might appear or dissapear. As Lua\TeX\ is not stable, this file is not neither.
+%
+% All functions are described in this document, but the one of the functions you'll use most will certainly be \texttt{table.serialize} (also named \texttt{table.tostring}) that takes a table and returns an intented string describing the table. It describes the table so that Lua\TeX\ can read it again as a table. You can do a lot of things with this functions, like printing a table for debugging, or saving a table into a file. Functions are also converted into bytecode to be saved.
+%
+% \section{\texttt{luaextra.lua}}
+%
+% \iffalse
+%<*lua>
+% \fi
+%
+%    \begin{macrocode}
 local module = {
     name          = "luaextra",
-    version       = 0.9,
-    date          = "2009/03/19",
-    description   = "Additions to the default lua library.",
+    version       = 0.91,
+    date          = "2009/04/15",
+    description   = "Lua additional functions.",
     author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux",
     copyright     = "PRAGMA ADE / ConTeXt Development Team",
-    license       = "GPLv2",
+    license       = "See ConTeXt's mreadme.pdf for the license",
 }
 
 luatextra.provides_module(module)
 
-string.chr_to_esc = {
-    ["%"] = "%%",
-    ["."] = "%.", ["*"] = "%*",
-    ["+"] = "%+", ["-"] = "%-",
-    ["^"] = "%^", ["$"] = "%$",
-    ["["] = "%[", ["]"] = "%]",
-    ["("] = "%(", [")"] = "%)",
-    ["{"] = "%{", ["}"] = "%}"
-}
-
-function string:esc() -- variant 2
-    return (self:gsub("(.)",string.chr_to_esc))
-end
-
-function string:count(pattern)
-    local n = 0
-    for _ in self:gmatch(pattern) do
-        n = n + 1
-    end
-    return n
-end
+%    \end{macrocode}
+%
+% \begin{macro}{string:stripspaces}
+%
+% A function to strip the spaces at the beginning and at the end of a string.
+%
+%    \begin{macrocode}
 
 function string:stripspaces()
     return (self:gsub("^%s*(.-)%s*$", "%1"))
 end
+
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{string.is boolean}
+%
+% If the argument is a string describing a boolean, this function returns the boolean, otherwise it retuns nil.
+%
+%    \begin{macrocode}
 
 function string.is_boolean(str)
     if type(str) == "string" then
@@ -47,12 +187,36 @@ function string.is_boolean(str)
     return nil
 end
 
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{string.is number}
+%
+% Returns true if the argument string is a number.
+%
+%    \begin{macrocode}
+
 function string.is_number(str)
     return str:find("^[%-%+]?[%d]-%.?[%d+]$") == 1
 end
 
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{lpeg.space and lpeg.newline}
+%
+% Two small helpers for \texttt{lpeg}, that will certainly be widely used: spaces and newlines.
+%
+%    \begin{macrocode}
+
 lpeg.space    = lpeg.S(" \t\f\v")
 lpeg.newline  = lpeg.P("\r\n") + lpeg.P("\r") +lpeg.P("\n")
+
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{table.fastcopy}
+%
+% A function copying a table fastly.
+%
+%    \begin{macrocode}
 
 if not table.fastcopy then do
 
@@ -81,6 +245,14 @@ if not table.fastcopy then do
     table.fastcopy = fastcopy
 
 end end
+
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{table.copy}
+%
+% A function copying a table in more cases than fastcopy, for example when a key is a table.
+%
+%    \begin{macrocode}
 
 if not table.copy then do
 
@@ -118,6 +290,14 @@ if not table.copy then do
     table.copy = copy
 
 end end
+
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{table.serialize}
+%
+% A bunch of functions leading to \texttt{table.serialize}.
+%
+%    \begin{macrocode}
 
 function table.sortedkeys(tab)
     local srt, kind = { }, 0 -- 0=unknown 1=string, 2=number 3=mixed
@@ -368,6 +548,14 @@ do
 
 end
 
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{table.tohash}
+%
+% Returning a table with all values of the argument table as keys, and \texttt{false} as values. This is what we will call a hash.
+%
+%    \begin{macrocode}
+
 function table.tohash(t)
     local h = { }
     for _, v in pairs(t) do -- no ipairs here
@@ -376,6 +564,14 @@ function table.tohash(t)
     return h
 end
 
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{table.fromhash}
+%
+% Returning a table built from a hash, with simple integer keys.
+%
+%    \begin{macrocode}
+
 function table.fromhash(t)
     local h = { }
     for k, v in pairs(t) do -- no ipairs here
@@ -383,6 +579,14 @@ function table.fromhash(t)
     end
     return h
 end
+
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{table.contains value}
+%
+% A function returning true if the value \texttt{val} is in the table \texttt{t}.
+%
+%    \begin{macrocode}
 
 function table.contains_value(t, val)
     if t then
@@ -395,6 +599,14 @@ function table.contains_value(t, val)
     return false
 end
 
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{table.contains key}
+%
+% A function returning true if the key \texttt{key} is in the table \texttt{t}
+%
+%    \begin{macrocode}
+
 function table.contains_key(t, key)
     if t then
         for k, v in pairs(t) do
@@ -405,6 +617,14 @@ function table.contains_key(t, key)
     end
     return false
 end
+
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{table.value position}
+%
+% A function returning the position of a value in a table. This will be important to be able to remove a value.
+%
+%    \begin{macrocode}
 
 function table.value_position(t, val)
     if t then
@@ -419,6 +639,14 @@ function table.value_position(t, val)
     return 0
 end
 
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{table.key position}
+%
+% A function returning the position of a key in a table.
+%
+%    \begin{macrocode}
+
 function table.key_position(t, key)
     if t then
         local i=1
@@ -429,59 +657,78 @@ function table.key_position(t, key)
             i = i+1
         end
     end
-    return 0
+    return -1
 end
+
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{table.remove value}
+%
+% Removes the first occurence of a value from a table.
+%
+%    \begin{macrocode}
 
 function table.remove_value(t, v)
-    table.remove(t, table.value_position(t,v))
+    local p = table.value_position(t,v)
+    if p ~= -1 then
+        table.remove(t, table.value_position(t,v))
+    end
 end
+
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{table.remove key}
+%
+% Removing a key from a table.
+%
+%    \begin{macrocode}
 
 function table.remove_key(t, k)
-    table.remove(t, table.key_position(t,k))
+    local p = table.key_position(t,k)
+    if p ~= -1 then
+        table.remove(t, table.key_position(t,k))
+    end
 end
 
-function table.reverse_hash(h)
-    local r = { }
-    for k,v in next, h do
-        r[v] = string.lower(string.gsub(k," ",""))
-    end
-    return r
-end
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{table.is empty}
+%
+% Returns true if a table is empty.
+%
+%    \begin{macrocode}
 
 function table.is_empty(t)
     return not t or not next(t)
 end
 
-function io.loaddata(filename)
-    local f = io.open(filename,'rb')
-    if f then
-        local data = f:read('*all')
-        f:close()
-        return data
-    else
-        return nil
-    end
-end
-
-function io.savedata(filename,data,joiner)
-    local f = io.open(filename, "wb")
-    if f then
-        if type(data) == "table" then
-            f:write(table.join(data,joiner or ""))
-        elseif type(data) == "function" then
-            data(f)
-        else
-            f:write(data)
-        end
-        f:close()
-    end
-end
+%    \end{macrocode}
+%
+%  \texttt{fpath} will contain all the file path manipulation functions. Some functions certainly need a little update or cleanup...
+%
+%    \begin{macrocode}
 
 fpath = { }
+
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{fpath.removesuffix}
+%
+% A function to remove the suffix (extention) of a filename.
+%
+%    \begin{macrocode}
 
 function fpath.removesuffix(filename)
     return filename:gsub("%.[%a%d]+$", "")
 end
+
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{fpath.addsuffix}
+%
+% A function adding a suffix to a filename, except if it already has one.
+%
+%    \begin{macrocode}
 
 function fpath.addsuffix(filename, suffix)
     if not filename:find("%.[%a%d]+$") then
@@ -491,6 +738,14 @@ function fpath.addsuffix(filename, suffix)
     end
 end
 
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{fpath.replacesuffix}
+%
+% A function replacing a suffix by a new one.
+%
+%    \begin{macrocode}
+
 function fpath.replacesuffix(filename, suffix)
     if not filename:find("%.[%a%d]+$") then
         return filename .. "." .. suffix
@@ -499,9 +754,25 @@ function fpath.replacesuffix(filename, suffix)
     end
 end
 
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{fpath.dirname}
+%
+% A function returning the directory of a file path.
+%
+%    \begin{macrocode}
+
 function fpath.dirname(name)
     return name:match("^(.+)[/\\].-$") or ""
 end
+
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{fpath.basename}
+%
+% A function returning the basename (the name of the file, without the directories) of a file path.
+%
+%    \begin{macrocode}
 
 function fpath.basename(fname)
     if not fname then
@@ -510,17 +781,37 @@ function fpath.basename(fname)
     return fname:match("^.+[/\\](.-)$") or fname
 end
 
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{fpath.nameonly}
+%
+% Returning the basename of a file without the suffix.
+%
+%    \begin{macrocode}
+
 function fpath.nameonly(name)
     return ((name:match("^.+[/\\](.-)$") or name):gsub("%..*$",""))
 end
+
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{fpath.suffix}
+%
+% Returns the suffix of a file name.
+%
+%    \begin{macrocode}
 
 function fpath.suffix(name)
     return name:match("^.+%.([^/\\]-)$") or  ""
 end
 
-function fpath.stripsuffix(name)
-    return (name:gsub("%.[%a%d]+$",""))
-end
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{fpath.join}
+%
+% A function joining any number of arguments into a complete path.
+%
+%    \begin{macrocode}
 
 function fpath.join(...)
     local pth = table.concat({...},"/")
@@ -536,6 +827,14 @@ function fpath.join(...)
     return (pth:gsub("//+","/"))
 end
 
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{fpath.split}
+%
+% A function returning a table with all directories from a filename.
+%
+%    \begin{macrocode}
+
 function fpath.split(str)
     local t = { }
     str = str:gsub("\\", "/")
@@ -549,9 +848,25 @@ function fpath.split(str)
     return t
 end
 
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{fpath.normalize sep}
+%
+% A function to change directory separators to canonical ones (\texttt{/}).
+%
+%    \begin{macrocode}
+
 function fpath.normalize_sep(str)
     return str:gsub("\\", "/")
 end
+
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{fpath.localize sep}
+%
+% A function changing directory separators into local ones (\texttt{/} on Unix, |\| on Windows).
+%
+%    \begin{macrocode}
 
 function fpath.localize_sep(str)
     if os.type == 'windows' or type == 'msdos' then
@@ -561,11 +876,13 @@ function fpath.localize_sep(str)
     end
 end
 
-function fpath.join(tab)
-    return table.concat(tab,io.pathseparator) -- can have trailing //
-end
-
--- should be made with lfs.attributes
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{lfs.is writable}
+%
+% Returns true if a file is writable. This function and the following ones are a bit too expensive, they should be made with |lfs.attributes|.
+%
+%    \begin{macrocode}
 
 function lfs.is_writable(name)
     local f = io.open(name, 'w')
@@ -577,6 +894,14 @@ function lfs.is_writable(name)
     end
 end
 
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{lfs.is readable}
+%
+% Returns true if a file is readable.
+%
+%    \begin{macrocode}
+
 function lfs.is_readable(name)
     local f = io.open(name,'r')
     if f then
@@ -587,11 +912,27 @@ function lfs.is_readable(name)
     end
 end
 
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{math.round}
+%
+% Returns the closest integer.
+%
+%    \begin{macrocode}
+
 if not math.round then
     function math.round(x)
         return math.floor(x + 0.5)
     end
 end
+
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{math.div}
+%
+% Returns the quotient of the euclidian division of n by m.
+%
+%    \begin{macrocode}
 
 if not math.div then
     function math.div(n,m)
@@ -599,8 +940,26 @@ if not math.div then
     end
 end
 
+%    \end{macrocode}
+%
+% \end{macro}\begin{macro}{math.mod}
+%
+% Returns the remainder of the euclidian division of n by m.
+%
+%    \begin{macrocode}
+
 if not math.mod then
     function math.mod(n,m)
         return n % m
     end
 end
+
+%    \end{macrocode}
+%
+% \end{macro}
+%
+% \iffalse
+%</lua>
+% \fi
+% \Finale
+\endinput
