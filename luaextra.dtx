@@ -144,18 +144,19 @@ and the derived file luaextra.lua.
 % \fi
 %
 %    \begin{macrocode}
-local module = {
-    name          = "luaextra",
-    version       = 0.91,
-    date          = "2009/04/15",
-    description   = "Lua additional functions.",
-    author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux",
-    copyright     = "PRAGMA ADE / ConTeXt Development Team",
-    license       = "See ConTeXt's mreadme.pdf for the license",
-}
+do
+    local luatextra_module = {
+        name          = "luaextra",
+        version       = 0.91,
+        date          = "2009/04/15",
+        description   = "Lua additional functions.",
+        author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux",
+        copyright     = "PRAGMA ADE / ConTeXt Development Team",
+        license       = "See ConTeXt's mreadme.pdf for the license",
+    }
 
-luatextra.provides_module(module)
-
+    luatextra.provides_module(luatextra_module)
+end
 %    \end{macrocode}
 %
 % \begin{macro}{string:stripspaces}
