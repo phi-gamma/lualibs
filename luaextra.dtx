@@ -7,7 +7,10 @@
 % This work consists of the main source file luaextra.dtx
 % and the derived file luaextra.lua.
 %
-% Unpacking and documentation:
+% Unpacking:
+%    tex luatextra.dtx
+%
+% Documentation:
 %    pdftex luaextra.dtx
 %
 %    The class ltxdoc loads the configuration file ltxdoc.cfg
@@ -19,7 +22,14 @@
 %
 %<*ignore>
 \begingroup
-
+  \def\x{LaTeX2e}%
+\expandafter\endgroup
+\ifcase 0\ifx\install y1\fi\expandafter
+         \ifx\csname processbatchFile\endcsname\relax\else1\fi
+         \ifx\fmtname\x\else 1\fi\relax
+\else\csname fi\endcsname
+%</ignore>
+%<*install>
 \input docstrip.tex
 \Msg{************************************************************************}
 \Msg{* Installation}
@@ -43,12 +53,6 @@ and the derived file luaextra.lua.
 
 \endpreamble
 
-\let\MetaPrefix\DoubleperCent
-
-\generate{%
-  \file{luaextra.drv}{\from{luaextra.dtx}{driver}}%
-}
-
 % The following hacks are to generate a lua file with lua comments starting by -- instead of %%
 
 \def\MetaPrefix{-- }
@@ -61,7 +65,7 @@ and the derived file luaextra.lua.
 \def\currentpostamble{\luapostamble}%
 
 \generate{%
-  \usedir{luatex/lua/luaextra}%
+  \usedir{tex/luatex/luatextra}%
   \file{luaextra.lua}{\from{luaextra.dtx}{lua}}%
 }
 
@@ -77,16 +81,15 @@ and the derived file luaextra.lua.
 \Msg{*}
 \Msg{************************************************************************}
 
-\endgroup
+\endbatchfile
+%</install>
+%<*ignore>
+\fi
 %</ignore>
-% \iffalse
-%<driver>
-%<driver>\NeedsTeXFormat{LaTeX2e}
-%<driver>\ProvidesPackage{luaextra.sty}
-%<driver>  [2009/04/15 v0.91 Lua additional functions.]
-%<driver>
-% \fi
 %<*driver>
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesFile{luaextra.drv}
+  [2009/04/15 v0.91 Lua additional functions.]
 \documentclass{ltxdoc}
 \EnableCrossrefs
 \CodelineIndex
