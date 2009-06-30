@@ -53,7 +53,8 @@ and the derived file luaextra.lua.
 
 \endpreamble
 
-% The following hacks are to generate a lua file with lua comments starting by -- instead of %%
+% The following hacks are to generate a lua file with lua comments starting by
+% -- instead of %%
 
 \def\MetaPrefix{-- }
 
@@ -125,20 +126,39 @@ and the derived file luaextra.lua.
 % \maketitle
 %
 % \begin{abstract}
-% Additional lua functions taken from the libs of Con\TeX t. For an introduction on this package (among others), please refer to the document \texttt{luatex-reference.pdf}.
+% Additional lua functions taken from the libs of Con\TeX t. For an
+% introduction on this package (among others), please refer to the document
+% \texttt{luatex-reference.pdf}.
 % \end{abstract}
 %
 % \section{Overview}
 %
-% Lua is a very minimal language, and it does not have a lot of built-in functions. Some functions will certainly be needed by a lot of packages. Instead of making each of them implement these functions, the aim of this file is to provide a minimal set of functions. All functions are taken from Con\TeX t libraries.
+% Lua is a very minimal language, and it does not have a lot of built-in
+% functions. Some functions will certainly be needed by a lot of packages.
+% Instead of making each of them implement these functions, the aim of this
+% file is to provide a minimal set of functions. All functions are taken from
+% Con\TeX t libraries.
 %
-% There are some differences with the Con\TeX t funtions though, especially on names: for example the \texttt{file.*} funtions are renamed in \texttt{fpath.*}. It seems more logical as they deal with file paths, not files. Also the \texttt{file.is\_readable} and \texttt{file.is\_writable} are renamed \texttt{lfs.is\_readable} and \texttt{lfs.is\_writable}.
+% There are some differences with the Con\TeX t funtions though, especially on
+% names: for example the \texttt{file.*} funtions are renamed in
+% \texttt{fpath.*}. It seems more logical as they deal with file paths, not
+% files. Also the \texttt{file.is\_readable} and \texttt{file.is\_writable}
+% are renamed \texttt{lfs.is\_readable} and \texttt{lfs.is\_writable}.
 %
-% If you use a function you think is missing in this file, please tell the maintainer.
+% If you use a function you think is missing in this file, please tell the
+% maintainer.
 %
-% \texttt{Warning:} Even if the names will certainly remain the same, some implementations may differ, and some functions might appear or dissapear. As Lua\TeX\ is not stable, this file is not neither.
+% \texttt{Warning:} Even if the names will certainly remain the same, some
+% implementations may differ, and some functions might appear or dissapear. As
+% Lua\TeX\ is not stable, this file is not neither.
 %
-% All functions are described in this document, but the one of the functions you'll use most will certainly be \texttt{table.serialize} (also named \texttt{table.tostring}) that takes a table and returns an intented string describing the table. It describes the table so that Lua\TeX\ can read it again as a table. You can do a lot of things with this functions, like printing a table for debugging, or saving a table into a file. Functions are also converted into bytecode to be saved.
+% All functions are described in this document, but the one of the functions
+% you'll use most will certainly be \texttt{table.serialize} (also named
+% \texttt{table.tostring}) that takes a table and returns an intented string
+% describing the table. It describes the table so that Lua\TeX\ can read it
+% again as a table. You can do a lot of things with this functions, like
+% printing a table for debugging, or saving a table into a file. Functions are
+% also converted into bytecode to be saved.
 %
 % \section{\texttt{luaextra.lua}}
 %
@@ -162,9 +182,10 @@ do
 end
 %    \end{macrocode}
 %
-% \begin{macro}{string:stripspaces}
+%    \begin{macro}{string:stripspaces}
 %
-% A function to strip the spaces at the beginning and at the end of a string.
+%    A function to strip the spaces at the beginning and at the end of a
+%    string.
 %
 %    \begin{macrocode}
 
@@ -174,9 +195,11 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{string.is boolean}
+%    \end{macro}
+%    \begin{macro}{string.is boolean}
 %
-% If the argument is a string describing a boolean, this function returns the boolean, otherwise it retuns nil.
+%    If the argument is a string describing a boolean, this function returns
+%    the boolean, otherwise it retuns nil.
 %
 %    \begin{macrocode}
 
@@ -193,9 +216,10 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{string.is number}
+%    \end{macro}
+%    \begin{macro}{string.is number}
 %
-% Returns true if the argument string is a number.
+%    Returns true if the argument string is a number.
 %
 %    \begin{macrocode}
 
@@ -205,9 +229,11 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{lpeg.space and lpeg.newline}
+%    \end{macro}
+%    \begin{macro}{lpeg.space and lpeg.newline}
 %
-% Two small helpers for \texttt{lpeg}, that will certainly be widely used: spaces and newlines.
+%    Two small helpers for \texttt{lpeg}, that will certainly be widely used:
+%    spaces and newlines.
 %
 %    \begin{macrocode}
 
@@ -216,15 +242,17 @@ lpeg.newline  = lpeg.P("\r\n") + lpeg.P("\r") +lpeg.P("\n")
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{table.fastcopy}
+%    \end{macro}
+%    \begin{macro}{table.fastcopy}
 %
-% A function copying a table fastly.
+%    A function copying a table fastly.
 %
 %    \begin{macrocode}
 
 if not table.fastcopy then do
 
-    local type, pairs, getmetatable, setmetatable = type, pairs, getmetatable, setmetatable
+    local type, pairs, getmetatable, setmetatable =
+        type, pairs, getmetatable, setmetatable
 
     local function fastcopy(old) -- fast one
         if old then
@@ -252,9 +280,11 @@ end end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{table.copy}
+%    \end{macro}
+%    \begin{macro}{table.copy}
 %
-% A function copying a table in more cases than fastcopy, for example when a key is a table.
+%    A function copying a table in more cases than fastcopy, for example when
+%    a key is a table.
 %
 %    \begin{macrocode}
 
@@ -297,9 +327,10 @@ end end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{table.serialize}
+%    \end{macro}
+%    \begin{macro}{table.serialize}
 %
-% A bunch of functions leading to \texttt{table.serialize}.
+%    A bunch of functions leading to \texttt{table.serialize}.
 %
 %    \begin{macrocode}
 
@@ -554,9 +585,11 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{table.tohash}
+%    \end{macro}
+%    \begin{macro}{table.tohash}
 %
-% Returning a table with all values of the argument table as keys, and \texttt{false} as values. This is what we will call a hash.
+%    Returning a table with all values of the argument table as keys, and
+%    \texttt{false} as values. This is what we will call a hash.
 %
 %    \begin{macrocode}
 
@@ -570,9 +603,10 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{table.fromhash}
+%    \end{macro}
+%    \begin{macro}{table.fromhash}
 %
-% Returning a table built from a hash, with simple integer keys.
+%    Returning a table built from a hash, with simple integer keys.
 %
 %    \begin{macrocode}
 
@@ -586,9 +620,11 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{table.contains value}
+%    \end{macro}
+%    \begin{macro}{table.contains value}
 %
-% A function returning true if the value \texttt{val} is in the table \texttt{t}.
+%    A function returning true if the value \texttt{val} is in the table
+%    \texttt{t}.
 %
 %    \begin{macrocode}
 
@@ -605,9 +641,11 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{table.contains key}
+%    \end{macro}
+%    \begin{macro}{table.contains key}
 %
-% A function returning true if the key \texttt{key} is in the table \texttt{t}
+%    A function returning true if the key \texttt{key} is in the table
+%    \texttt{t}
 %
 %    \begin{macrocode}
 
@@ -624,9 +662,11 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{table.value position}
+%    \end{macro}
+%    \begin{macro}{table.value position}
 %
-% A function returning the position of a value in a table. This will be important to be able to remove a value.
+%    A function returning the position of a value in a table. This will be
+%    important to be able to remove a value.
 %
 %    \begin{macrocode}
 
@@ -645,9 +685,10 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{table.key position}
+%    \end{macro}
+%    \begin{macro}{table.key position}
 %
-% A function returning the position of a key in a table.
+%    A function returning the position of a key in a table.
 %
 %    \begin{macrocode}
 
@@ -666,9 +707,10 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{table.remove value}
+%    \end{macro}
+%    \begin{macro}{table.remove value}
 %
-% Removes the first occurence of a value from a table.
+%    Removes the first occurence of a value from a table.
 %
 %    \begin{macrocode}
 
@@ -681,9 +723,10 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{table.remove key}
+%    \end{macro}
+%    \begin{macro}{table.remove key}
 %
-% Removing a key from a table.
+%    Removing a key from a table.
 %
 %    \begin{macrocode}
 
@@ -696,9 +739,10 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{table.is empty}
+%    \end{macro}
+%    \begin{macro}{table.is empty}
 %
-% Returns true if a table is empty.
+%    Returns true if a table is empty.
 %
 %    \begin{macrocode}
 
@@ -708,7 +752,8 @@ end
 
 %    \end{macrocode}
 %
-%  \texttt{fpath} will contain all the file path manipulation functions. Some functions certainly need a little update or cleanup...
+%     \texttt{fpath} will contain all the file path manipulation functions.
+%     Some functions certainly need a little update or cleanup...
 %
 %    \begin{macrocode}
 
@@ -716,9 +761,10 @@ fpath = { }
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{fpath.removesuffix}
+%    \end{macro}
+%    \begin{macro}{fpath.removesuffix}
 %
-% A function to remove the suffix (extention) of a filename.
+%    A function to remove the suffix (extention) of a filename.
 %
 %    \begin{macrocode}
 
@@ -728,9 +774,10 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{fpath.addsuffix}
+%    \end{macro}
+%    \begin{macro}{fpath.addsuffix}
 %
-% A function adding a suffix to a filename, except if it already has one.
+%    A function adding a suffix to a filename, except if it already has one.
 %
 %    \begin{macrocode}
 
@@ -744,9 +791,10 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{fpath.replacesuffix}
+%    \end{macro}
+%    \begin{macro}{fpath.replacesuffix}
 %
-% A function replacing a suffix by a new one.
+%    A function replacing a suffix by a new one.
 %
 %    \begin{macrocode}
 
@@ -760,9 +808,10 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{fpath.dirname}
+%    \end{macro}
+%    \begin{macro}{fpath.dirname}
 %
-% A function returning the directory of a file path.
+%    A function returning the directory of a file path.
 %
 %    \begin{macrocode}
 
@@ -772,7 +821,8 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{fpath.basename}
+%    \end{macro}
+%    \begin{macro}{fpath.basename}
 %
 % A function returning the basename (the name of the file, without the directories) of a file path.
 %
@@ -787,9 +837,10 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{fpath.nameonly}
+%    \end{macro}
+%    \begin{macro}{fpath.nameonly}
 %
-% Returning the basename of a file without the suffix.
+%    Returning the basename of a file without the suffix.
 %
 %    \begin{macrocode}
 
@@ -799,9 +850,10 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{fpath.suffix}
+%    \end{macro}
+%    \begin{macro}{fpath.suffix}
 %
-% Returns the suffix of a file name.
+%    Returns the suffix of a file name.
 %
 %    \begin{macrocode}
 
@@ -811,9 +863,10 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{fpath.join}
+%    \end{macro}
+%    \begin{macro}{fpath.join}
 %
-% A function joining any number of arguments into a complete path.
+%    A function joining any number of arguments into a complete path.
 %
 %    \begin{macrocode}
 
@@ -833,9 +886,10 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{fpath.split}
+%    \end{macro}
+%    \begin{macro}{fpath.split}
 %
-% A function returning a table with all directories from a filename.
+%    A function returning a table with all directories from a filename.
 %
 %    \begin{macrocode}
 
@@ -854,9 +908,10 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{fpath.normalize sep}
+%    \end{macro}
+%    \begin{macro}{fpath.normalize sep}
 %
-% A function to change directory separators to canonical ones (\texttt{/}).
+%    A function to change directory separators to canonical ones (\texttt{/}).
 %
 %    \begin{macrocode}
 
@@ -866,9 +921,11 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{fpath.localize sep}
+%    \end{macro}
+%    \begin{macro}{fpath.localize sep}
 %
-% A function changing directory separators into local ones (\texttt{/} on Unix, |\| on Windows).
+%    A function changing directory separators into local ones (\texttt{/} on
+%    Unix, |\| on Windows).
 %
 %    \begin{macrocode}
 
@@ -882,9 +939,11 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{lfs.is writable}
+%    \end{macro}
+%    \begin{macro}{lfs.is writable}
 %
-% Returns true if a file is writable. This function and the following ones are a bit too expensive, they should be made with |lfs.attributes|.
+%    Returns true if a file is writable. This function and the following ones
+%    are a bit too expensive, they should be made with |lfs.attributes|.
 %
 %    \begin{macrocode}
 
@@ -900,9 +959,10 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{lfs.is readable}
+%    \end{macro}
+%    \begin{macro}{lfs.is readable}
 %
-% Returns true if a file is readable.
+%    Returns true if a file is readable.
 %
 %    \begin{macrocode}
 
@@ -918,9 +978,10 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{math.round}
+%    \end{macro}
+%    \begin{macro}{math.round}
 %
-% Returns the closest integer.
+%    Returns the closest integer.
 %
 %    \begin{macrocode}
 
@@ -932,9 +993,10 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{math.div}
+%    \end{macro}
+%    \begin{macro}{math.div}
 %
-% Returns the quotient of the euclidian division of n by m.
+%    Returns the quotient of the euclidian division of n by m.
 %
 %    \begin{macrocode}
 
@@ -946,9 +1008,10 @@ end
 
 %    \end{macrocode}
 %
-% \end{macro}\begin{macro}{math.mod}
+%    \end{macro}
+%    \begin{macro}{math.mod}
 %
-% Returns the remainder of the euclidian division of n by m.
+%    Returns the remainder of the euclidian division of n by m.
 %
 %    \begin{macrocode}
 
