@@ -216,10 +216,174 @@ require("luaextra-dimen.lua")
 %    \begin{macrocode}
 
 fpath           = file
+fpath.split     = file.split_path
 lfs.is_readable = file.is_readable
 lfs.is_writable = file.is_writable
 
 %    \end{macrocode}
+% Functions no longer provided by Con\TeX t module.
+%
+%    \begin{macro}{string:stripspaces}
+%
+%    A function to strip the spaces at the beginning and at the end of a
+%    string.
+%
+%    \begin{macrocode}
+
+function string:stripspaces()
+    return (self:gsub("^%s*(.-)%s*$", "%1"))
+end
+
+%    \end{macrocode}
+%
+%    \end{macro}
+%    \begin{macro}{lpeg.space and lpeg.newline}
+%
+%    Two small helpers for \texttt{lpeg}, that will certainly be widely used:
+%    spaces and newlines.
+%
+%    \begin{macrocode}
+
+lpeg.space    = lpeg.S(" \t\f\v")
+lpeg.newline  = lpeg.P("\r\n") + lpeg.P("\r") +lpeg.P("\n")
+
+%    \end{macrocode}
+%
+%    \end{macro}
+%    \begin{macro}{table.contains value}
+%
+%    A function returning true if the value \texttt{val} is in the table
+%    \texttt{t}.
+%
+%    \begin{macrocode}
+
+function table.contains_value(t, val)
+    if t then
+        for k, v in pairs(t) do
+            if v==val then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+%    \end{macrocode}
+%
+%    \end{macro}
+%    \begin{macro}{table.contains key}
+%
+%    A function returning true if the key \texttt{key} is in the table
+%    \texttt{t}
+%
+%    \begin{macrocode}
+
+function table.contains_key(t, key)
+    if t then
+        for k, v in pairs(t) do
+            if k==key then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+%    \end{macrocode}
+%
+%    \end{macro}
+%    \begin{macro}{table.value position}
+%
+%    A function returning the position of a value in a table. This will be
+%    important to be able to remove a value.
+%
+%    \begin{macrocode}
+
+function table.value_position(t, val)
+    if t then
+        local i=1
+        for k, v in pairs(t) do
+            if v==val then
+                return i
+            end
+            i=i+1
+        end
+    end
+    return 0
+end
+
+%    \end{macrocode}
+%
+%    \end{macro}
+%    \begin{macro}{table.key position}
+%
+%    A function returning the position of a key in a table.
+%
+%    \begin{macrocode}
+
+function table.key_position(t, key)
+    if t then
+        local i=1
+        for k,v in pairs(t) do
+            if k==key then
+                return i
+            end
+            i = i+1
+        end
+    end
+    return -1
+end
+
+%    \end{macrocode}
+%
+%    \end{macro}
+%    \begin{macro}{table.remove key}
+%
+%    Removing a key from a table.
+%
+%    \begin{macrocode}
+
+function table.remove_key(t, k)
+    local p = table.key_position(t,k)
+    if p ~= -1 then
+        table.remove(t, table.key_position(t,k))
+    end
+end
+
+%    \end{macrocode}
+%
+%    \end{macro}
+%    \begin{macro}{fpath.normalize sep}
+%
+%    A function to change directory separators to canonical ones (\texttt{/}).
+%
+%    \begin{macrocode}
+
+function fpath.normalize_sep(str)
+    return str:gsub("\\", "/")
+end
+
+%    \end{macrocode}
+%
+%    \end{macro}
+%    \begin{macro}{fpath.localize sep}
+%
+%    A function changing directory separators into local ones (\texttt{/} on
+%    Unix, |\| on Windows).
+%
+%    \begin{macrocode}
+
+function fpath.localize_sep(str)
+    if os.type == 'windows' or os.type == 'msdos' then
+        return str:gsub("/", "\\")
+    else
+        return str:gsub("\\", "/")
+    end
+end
+
+%    \end{macrocode}
+%
+%    \end{macro}
 %
 % \iffalse
 %</lua>
