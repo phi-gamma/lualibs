@@ -11,7 +11,7 @@
 %    tex luatextra.dtx
 %
 % Documentation:
-%    pdftex luaextra.dtx
+%    pdflatex luaextra.dtx
 %
 %    The class ltxdoc loads the configuration file ltxdoc.cfg
 %    if available. Here you can specify further options, e.g.
@@ -33,7 +33,7 @@
 \input docstrip.tex
 \Msg{************************************************************************}
 \Msg{* Installation}
-\Msg{* Package: luaextra 2009/04/15 v0.91 Lua additional functions.}
+\Msg{* Package: luaextra 2010/01/11 v0.92 Lua additional functions.}
 \Msg{************************************************************************}
 
 \keepsilent
@@ -90,7 +90,7 @@ and the derived file luaextra.lua.
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesFile{luaextra.drv}
-  [2009/04/15 v0.91 Lua additional functions.]
+  [2010/01/11 v0.92 Lua additional functions.]
 \documentclass{ltxdoc}
 \EnableCrossrefs
 \CodelineIndex
@@ -120,7 +120,7 @@ and the derived file luaextra.lua.
 % \GetFileInfo{luaextra.drv}
 %
 % \title{The \textsf{luaextra} package}
-% \date{2009/04/15 v0.91}
+% \date{2010/01/11 v0.92}
 % \author{Elie Roux \\ \texttt{elie.roux@telecom-bretagne.eu}}
 %
 % \maketitle
@@ -168,17 +168,18 @@ and the derived file luaextra.lua.
 %
 %    \begin{macrocode}
 do
-    local luatextra_module = {
+    local luaextra_module = {
         name          = "luaextra",
-        version       = 0.91,
-        date          = "2009/04/15",
+        version       = 0.92,
+        date          = "2010/01/11",
         description   = "Lua additional functions.",
         author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux",
         copyright     = "PRAGMA ADE / ConTeXt Development Team",
         license       = "See ConTeXt's mreadme.pdf for the license",
     }
-
-    luatextra.provides_module(luatextra_module)
+    if luatextra then
+        luatextra.provides_module(luaextra_module)
+    end
 end
 %    \end{macrocode}
 %
@@ -930,7 +931,7 @@ end
 %    \begin{macrocode}
 
 function fpath.localize_sep(str)
-    if os.type == 'windows' or type == 'msdos' then
+    if os.type == 'windows' or os.type == 'msdos' then
         return str:gsub("/", "\\")
     else
         return str:gsub("\\", "/")
