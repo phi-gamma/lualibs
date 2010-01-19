@@ -189,27 +189,42 @@ end
 kpse.set_program_name("luatex")
 
 %    \end{macrocode}
-% Load the individual modules.
+% We load the modules with |require| if the version of Lua\TeX{} is higher
+% than 0.44, otherwise we simply load them with |dofile|. For |texlua| we
+% cannot know the version of Lua\TeX{} so we load all the time with
+% |dofile|.
 %    \begin{macrocode}
 
-require("luaextra-string.lua")
-require("luaextra-lpeg.lua")
-require("luaextra-boolean.lua")
-require("luaextra-number.lua")
-require("luaextra-math.lua")
-require("luaextra-table.lua")
-require("luaextra-aux.lua")
-require("luaextra-io.lua")
-require("luaextra-os.lua")
-require("luaextra-file.lua")
-require("luaextra-md5.lua")
-require("luaextra-dir.lua")
-require("luaextra-unicode.lua")
-require("luaextra-utils.lua")
-require("luaextra-dimen.lua")
-require("luaextra-url.lua")
-require("luaextra-set.lua")
-require("luaextra-dimen.lua")
+local function load_luaextra_module(filename)
+    local path = kpse.find_file(filename)
+    texio.write_nl('log', string.format("luaextra: loading file %s", path))
+    if tex and tex.luatexversion and tex.luatexversion > 44 then 
+        -- this means that by default we use old-style loading for texlua,
+        -- as the tex table is not available.
+        require(filename)
+    else
+        dofile(kpse.find_file(filename))
+    end
+end
+
+load_luaextra_module("luaextra-string.lua")
+load_luaextra_module("luaextra-lpeg.lua")
+load_luaextra_module("luaextra-boolean.lua")
+load_luaextra_module("luaextra-number.lua")
+load_luaextra_module("luaextra-math.lua")
+load_luaextra_module("luaextra-table.lua")
+load_luaextra_module("luaextra-aux.lua")
+load_luaextra_module("luaextra-io.lua")
+load_luaextra_module("luaextra-os.lua")
+load_luaextra_module("luaextra-file.lua")
+load_luaextra_module("luaextra-md5.lua")
+load_luaextra_module("luaextra-dir.lua")
+load_luaextra_module("luaextra-unicode.lua")
+load_luaextra_module("luaextra-utils.lua")
+load_luaextra_module("luaextra-dimen.lua")
+load_luaextra_module("luaextra-url.lua")
+load_luaextra_module("luaextra-set.lua")
+load_luaextra_module("luaextra-dimen.lua")
 
 %    \end{macrocode}
 % Aliases for backward compatibility.
