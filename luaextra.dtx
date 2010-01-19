@@ -189,21 +189,23 @@ end
 kpse.set_program_name("luatex")
 
 %    \end{macrocode}
-% We load the modules with |require| if the version of Lua\TeX{} is higher
-% than 0.44, otherwise we simply load them with |dofile|. For |texlua| we
-% cannot know the version of Lua\TeX{} so we load all the time with
-% |dofile|.
+% We could load the modules with |require|, but this works only from version
+% 0.44, and doesn't work in Debian, so we simply use |dofile|.
 %    \begin{macrocode}
 
 local function load_luaextra_module(filename)
     local path = kpse.find_file(filename)
-    texio.write_nl('log', string.format("luaextra: loading file %s", path))
-    if (tex and tex.luatexversion and tex.luatexversion > 44)
-        or (status and status.luatex_version and status.luatex_version > 44) then
-        require(filename)
-    else
-        dofile(kpse.find_file(filename))
+    if not path then
+        texio.write_nl(string.format("luaextra: error: cannot find file %s", filename))
+        return
     end
+    texio.write_nl('log', string.format("luaextra: loading file %s", path))
+    --if (tex and tex.luatexversion and tex.luatexversion > 44)
+    --    or (status and status.luatex_version and status.luatex_version > 44) then
+    --    require(filename)
+    --else
+        dofile(path)
+    --end
 end
 
 load_luaextra_module("luaextra-string.lua")
