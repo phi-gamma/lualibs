@@ -198,9 +198,8 @@ kpse.set_program_name("luatex")
 local function load_luaextra_module(filename)
     local path = kpse.find_file(filename)
     texio.write_nl('log', string.format("luaextra: loading file %s", path))
-    if tex and tex.luatexversion and tex.luatexversion > 44 then 
-        -- this means that by default we use old-style loading for texlua,
-        -- as the tex table is not available.
+    if (tex and tex.luatexversion and tex.luatexversion > 44)
+        or (status and status.luatex_version and status.luatex_version > 44) then
         require(filename)
     else
         dofile(kpse.find_file(filename))
