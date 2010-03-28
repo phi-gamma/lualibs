@@ -11,7 +11,7 @@ if not modules then modules = { } end modules ['l-file'] = {
 file = file or { }
 
 local concat = table.concat
-local find, gmatch, match, gsub, sub = string.find, string.gmatch, string.match, string.gsub, string.sub
+local find, gmatch, match, gsub, sub, char = string.find, string.gmatch, string.match, string.gsub, string.sub, string.char
 local lpegmatch = lpeg.match
 
 function file.removesuffix(filename)
@@ -19,7 +19,9 @@ function file.removesuffix(filename)
 end
 
 function file.addsuffix(filename, suffix)
-    if not find(filename,"%.[%a%d]+$") then
+    if not suffix or suffix == "" then
+        return filename
+    elseif not find(filename,"%.[%a%d]+$") then
         return filename .. "." .. suffix
     else
         return filename
@@ -48,14 +50,33 @@ end
 
 file.suffix = file.extname
 
---~ print(file.join("x/","/y"))
---~ print(file.join("http://","/y"))
---~ print(file.join("http://a","/y"))
---~ print(file.join("http:///a","/y"))
---~ print(file.join("//nas-1","/y"))
+--~ function file.join(...)
+--~     local pth = concat({...},"/")
+--~     pth = gsub(pth,"\\","/")
+--~     local a, b = match(pth,"^(.*://)(.*)$")
+--~     if a and b then
+--~         return a .. gsub(b,"//+","/")
+--~     end
+--~     a, b = match(pth,"^(//)(.*)$")
+--~     if a and b then
+--~         return a .. gsub(b,"//+","/")
+--~     end
+--~     return (gsub(pth,"//+","/"))
+--~ end
+
+local trick_1 = char(1)
+local trick_2 = "^" .. trick_1 .. "/+"
 
 function file.join(...)
-    local pth = concat({...},"/")
+    local lst = { ... }
+    local a, b = lst[1], lst[2]
+    if a == "" then
+        lst[1] = trick_1
+    elseif b and find(a,"^/+$") and find(b,"^/") then
+        lst[1] = ""
+        lst[2] = gsub(b,"^/+","")
+    end
+    local pth = concat(lst,"/")
     pth = gsub(pth,"\\","/")
     local a, b = match(pth,"^(.*://)(.*)$")
     if a and b then
@@ -65,8 +86,19 @@ function file.join(...)
     if a and b then
         return a .. gsub(b,"//+","/")
     end
+    pth = gsub(pth,trick_2,"")
     return (gsub(pth,"//+","/"))
 end
+
+--~ print(file.join("//","/y"))
+--~ print(file.join("/","/y"))
+--~ print(file.join("","/y"))
+--~ print(file.join("/x/","/y"))
+--~ print(file.join("x/","/y"))
+--~ print(file.join("http://","/y"))
+--~ print(file.join("http://a","/y"))
+--~ print(file.join("http:///a","/y"))
+--~ print(file.join("//nas-1","/y"))
 
 function file.iswritable(name)
     local a = lfs.attributes(name) or lfs.attributes(file.dirname(name,"."))
@@ -106,16 +138,22 @@ function file.join_path(tab)
     return concat(tab,io.pathseparator) -- can have trailing //
 end
 
+-- we can hash them weakly
+
 function file.collapse_path(str)
-    str = gsub(str,"/%./","/")
-    local n, m = 1, 1
-    while n > 0 or m > 0 do
-        str, n = gsub(str,"[^/%.]+/%.%.$","")
-        str, m = gsub(str,"[^/%.]+/%.%./","")
+    str = gsub(str,"\\","/")
+    if find(str,"/") then
+        str = gsub(str,"^%./",(gsub(lfs.currentdir(),"\\","/")) .. "/") -- ./xx in qualified
+        str = gsub(str,"/%./","/")
+        local n, m = 1, 1
+        while n > 0 or m > 0 do
+            str, n = gsub(str,"[^/%.]+/%.%.$","")
+            str, m = gsub(str,"[^/%.]+/%.%./","")
+        end
+        str = gsub(str,"([^/])/$","%1")
+    --  str = gsub(str,"^%./","") -- ./xx in qualified
+        str = gsub(str,"/%.$","")
     end
-    str = gsub(str,"([^/])/$","%1")
-    str = gsub(str,"^%./","")
-    str = gsub(str,"/%.$","")
     if str == "" then str = "." end
     return str
 end
@@ -265,3 +303,12 @@ end
 -- test { "c:", "c:aa", "c:aa/bb", "c:aa/bb/cc", "c:aa/bb/cc.dd", "c:aa/bb/cc.dd.ee" }
 -- test { "/aa", "/aa/bb", "/aa/bb/cc", "/aa/bb/cc.dd", "/aa/bb/cc.dd.ee" }
 -- test { "aa", "aa/bb", "aa/bb/cc", "aa/bb/cc.dd", "aa/bb/cc.dd.ee" }
+
+--~ -- todo:
+--~
+--~ if os.type == "windows" then
+--~     local currentdir = lfs.currentdir
+--~     function lfs.currentdir()
+--~         return (gsub(currentdir(),"\\","/"))
+--~     end
+--~ end
