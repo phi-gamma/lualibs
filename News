@@ -1,0 +1,9 @@
+                        History of the luaextra package
+
+2010/03/28
+    * now a separate package (previously part of the luatextra bundle)
+
+2010/01/10 v0.92
+    * making the file loadable without luatextra (useful for lua scripts)
+    * fixing typo in localize_sep
+
