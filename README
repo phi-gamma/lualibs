@@ -3,6 +3,12 @@
 
 Luaextra is a collection of Lua modules useful for general programming.
 
+This work is based on lua modules shipped with ConTeXt, and are made available
+this package to be used independent of ConTeXt.
+
+This package is developed on <http://github.com/mpg/luaextra>, see the 'News'
+file for version history.
+
 Installation
 ------------
 
@@ -63,3 +69,10 @@ http://creativecommons.org/publicdomain/zero/1.0/legalcode
 and a FAQ at
 
 http://wiki.creativecommons.org/CC0
+
+The files luaextra-*.lua are under the GNU GPLv2 license. Their legal notice
+starts by:
+
+"
+Copyright PRAGMA ADE / ConTeXt Development Team
+"
