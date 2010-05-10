@@ -6,7 +6,7 @@ Lualibs is a collection of Lua modules useful for general programming.
 This work is based on lua modules shipped with ConTeXt, and are made available
 this package to be used independent of ConTeXt.
 
-This package is developed on <http://github.com/mpg/luaextra>, see the 'NEWS'
+This package is developed on <http://github.com/mpg/lualibs>, see the 'NEWS'
 file for version history.
 
 Installation
