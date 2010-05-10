@@ -1,12 +1,12 @@
-                          The luaextra generic package
+                          The lualibs generic package
 
 
-Luaextra is a collection of Lua modules useful for general programming.
+Lualibs is a collection of Lua modules useful for general programming.
 
 This work is based on lua modules shipped with ConTeXt, and are made available
 this package to be used independent of ConTeXt.
 
-This package is developed on <http://github.com/mpg/luaextra>, see the 'News'
+This package is developed on <http://github.com/mpg/luaextra>, see the 'NEWS'
 file for version history.
 
 Installation
@@ -15,10 +15,10 @@ Installation
 Here are the recommended installation methods (preferred first).
 The methods "commented out" are currently not available.
 
-1. If you are using TeX Live 2009 or later, use 'tlmgr install luaextra'.
+1. If you are using TeX Live 2010 or later, use 'tlmgr install lualibs'.
    Alternatively, try your (TeX or Linux) distribution's package management system.
 
-2. a. Grab luaextra.tds.zip on CTAN.
+2. a. Grab lualibs.tds.zip on CTAN.
    b. Unzip it at the root of one or your TDS trees.
    c. You may need to update some filename database after this, see your TeX
       distribution's manual for details.
@@ -31,31 +31,31 @@ Manifest
 --------
 
 Source files:
-    luaextra.dtx
-    luaextra-aux.lua
-    luaextra-boolean.lua
-    luaextra-dimen.lua
-    luaextra-dir.lua
-    luaextra-file.lua
-    luaextra-io.lua
-    luaextra-lpeg.lua
-    luaextra-math.lua
-    luaextra-md5.lua
-    luaextra-number.lua
-    luaextra-os.lua
-    luaextra-set.lua
-    luaextra-string.lua
-    luaextra-table.lua
-    luaextra-unicode.lua
-    luaextra-url.lua
-    luaextra-utils.lua
+    lualibs.dtx
+    lualibs-aux.lua
+    lualibs-boolean.lua
+    lualibs-dimen.lua
+    lualibs-dir.lua
+    lualibs-file.lua
+    lualibs-io.lua
+    lualibs-lpeg.lua
+    lualibs-math.lua
+    lualibs-md5.lua
+    lualibs-number.lua
+    lualibs-os.lua
+    lualibs-set.lua
+    lualibs-string.lua
+    lualibs-table.lua
+    lualibs-unicode.lua
+    lualibs-url.lua
+    lualibs-utils.lua
     README
     Makefile
-    News
+    NEWS
 
 Derived files:
-    luaextra.lua
-    luaextra.pdf
+    lualibs.lua
+    lualibs.pdf
 
 License
 -------
@@ -70,7 +70,7 @@ and a FAQ at
 
 http://wiki.creativecommons.org/CC0
 
-The files luaextra-*.lua are under the GNU GPLv2 license. Their legal notice
+The files lualibs-*.lua are under the GNU GPLv2 license. Their legal notice
 starts by:
 
 "

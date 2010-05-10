@@ -1,19 +1,19 @@
-# Makefile for luaextra.
+# Makefile for lualibs.
 
-NAME = luaextra
+NAME = lualibs
 DTX = $(wildcard *.dtx)
 DOC_DTX = $(patsubst %.dtx, %.pdf, $(DTX))
-EXTRA = $(wildcard luaextra-*.lua)
+MODULES = $(wildcard lualibs-*.lua)
 
 # Files grouped by generation mode
-UNPACKED= luaextra.lua 
+UNPACKED= lualibs.lua
 COMPILED = $(DOC_DTX)
 GENERATED = $(UNPACKED) $(DOC_DTX)
-SOURCE = $(DTX) $(EXTRA) README Makefile News
+SOURCE = $(DTX) $(MODULES) README Makefile NEWS
 
 # Files grouped by installation location
-RUNFILES = $(UNPACKED) $(EXTRA)
-DOCFILES = $(DOC_DTX) README News
+RUNFILES = $(UNPACKED) $(MODULES)
+DOCFILES = $(DOC_DTX) README NEWS
 SRCFILES = $(DTX) $(SRC_TEX) Makefile
 
 # The following definitions should be equivalent
@@ -50,7 +50,7 @@ world: all ctan
 	$(DO_PDFLATEX)
 	$(DO_PDFLATEX)
 
-$(UNPACKED): luaextra.dtx
+$(UNPACKED): lualibs.dtx
 	$(DO_TEX)
 
 $(CTAN_ZIP): $(SOURCE) $(COMPILED) $(TDS_ZIP)

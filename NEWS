@@ -1,4 +1,7 @@
-                        History of the luaextra package
+                        History of the lualibs package
+
+2010/05/10
+    * renamed the package from luaextra to lualibs
 
 2010/03/28
     * now a separate package (previously part of the luatextra bundle)

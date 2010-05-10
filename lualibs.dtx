@@ -4,14 +4,14 @@
 %
 % See ConTeXt's mreadme.pdf for the license.
 %
-% This work consists of the main source file luaextra.dtx
-% and the derived file luaextra.lua.
+% This work consists of the main source file lualibs.dtx
+% and the derived file lualibs.lua.
 %
 % Unpacking:
-%    tex luatextra.dtx
+%    tex lualibs.dtx
 %
 % Documentation:
-%    pdflatex luaextra.dtx
+%    pdflatex lualibs.dtx
 %
 %    The class ltxdoc loads the configuration file ltxdoc.cfg
 %    if available. Here you can specify further options, e.g.
@@ -33,7 +33,7 @@
 \input docstrip.tex
 \Msg{************************************************************************}
 \Msg{* Installation}
-\Msg{* Package: luaextra 2010/01/11 v0.92 Lua additional functions.}
+\Msg{* Package: lualibs 2010/01/11 v0.92 Lua additional functions.}
 \Msg{************************************************************************}
 
 \keepsilent
@@ -48,8 +48,8 @@ Copyright (C) 2009 by PRAGMA ADE / ConTeXt Development Team
 
 See ConTeXt's mreadme.pdf for the license.
 
-This work consists of the main source file luaextra.dtx
-and the derived file luaextra.lua.
+This work consists of the main source file lualibs.dtx
+and the derived file lualibs.lua.
 
 \endpreamble
 
@@ -66,8 +66,8 @@ and the derived file luaextra.lua.
 \def\currentpostamble{\luapostamble}%
 
 \generate{%
-  \usedir{tex/luatex/luatextra}%
-  \file{luaextra.lua}{\from{luaextra.dtx}{lua}}%
+  \usedir{tex/luatex/lualibs}%
+  \file{lualibs.lua}{\from{lualibs.dtx}{lua}}%
 }
 
 \obeyspaces
@@ -76,7 +76,7 @@ and the derived file luaextra.lua.
 \Msg{* To finish the installation you have to move the following}
 \Msg{* files into a directory searched by TeX:}
 \Msg{*}
-\Msg{*     luaextra.lua}
+\Msg{*     lualibs.lua}
 \Msg{*}
 \Msg{* Happy TeXing!}
 \Msg{*}
@@ -89,13 +89,13 @@ and the derived file luaextra.lua.
 %</ignore>
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesFile{luaextra.drv}
+\ProvidesFile{lualibs.drv}
   [2010/01/11 v0.92 Lua additional functions.]
 \documentclass{ltxdoc}
 \EnableCrossrefs
 \CodelineIndex
 \begin{document}
-  \DocInput{luaextra.dtx}%
+  \DocInput{lualibs.dtx}%
 \end{document}
 %</driver>
 % \fi
@@ -117,10 +117,10 @@ and the derived file luaextra.lua.
 %   Grave accent  \`     Left brace    \{     Vertical bar  \|
 %   Right brace   \}     Tilde         \~}
 %
-% \GetFileInfo{luaextra.drv}
+% \GetFileInfo{lualibs.drv}
 %
-% \title{The \textsf{luaextra} package}
-% \date{2010/01/11 v0.92}
+% \title{The \textsf{lualibs} package}
+% \date{2010/05/10 v0.93}
 % \author{Elie Roux \\ \texttt{elie.roux@telecom-bretagne.eu}}
 %
 % \maketitle
@@ -136,8 +136,8 @@ and the derived file luaextra.lua.
 % Lua is a very minimal language, and it does not have a lot of built-in
 % functions. Some functions will certainly be needed by a lot of packages.
 % Instead of making each of them implement these functions, the aim of this
-% file is to provide a minimal set of functions. All functions are taken from
-% Con\TeX t libraries.
+% package is to provide a standard set of functions. All functions are taken
+% from Con\TeX t libraries.
 %
 % There are some differences with the Con\TeX t funtions though, especially on
 % names: for example the \texttt{file.*} funtions are renamed in
@@ -160,7 +160,7 @@ and the derived file luaextra.lua.
 % printing a table for debugging, or saving a table into a file. Functions are
 % also converted into bytecode to be saved.
 %
-% \section{\texttt{luaextra.lua}}
+% \section{\texttt{lualibs.lua}}
 %
 % \iffalse
 %<*lua>
@@ -168,17 +168,17 @@ and the derived file luaextra.lua.
 %
 %    \begin{macrocode}
 do
-    local luaextra_module = {
-        name          = "luaextra",
-        version       = 0.92,
-        date          = "2010/01/11",
+    local lualibs_module = {
+        name          = "lualibs",
+        version       = 0.93,
+        date          = "2010/05/10",
         description   = "Lua additional functions.",
         author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux",
         copyright     = "PRAGMA ADE / ConTeXt Development Team",
         license       = "See ConTeXt's mreadme.pdf for the license",
     }
-    if luatextra then
-        luatextra.provides_module(luaextra_module)
+    if luatexbase then
+        luatexbase.provides_module(lualibs_module)
     end
 end
 %    \end{macrocode}
@@ -193,13 +193,13 @@ kpse.set_program_name("luatex")
 % 0.44, and doesn't work in Debian, so we simply use |dofile|.
 %    \begin{macrocode}
 
-local function load_luaextra_module(filename)
+local function load_lualibs_module(filename)
     local path = kpse.find_file(filename)
     if not path then
-        texio.write_nl(string.format("luaextra: error: cannot find file %s", filename))
+        texio.write_nl(string.format("lualibs: error: cannot find file %s", filename))
         return
     end
-    texio.write_nl('log', string.format("luaextra: loading file %s", path))
+    texio.write_nl('log', string.format("lualibs: loading file %s", path))
     --if (tex and tex.luatexversion and tex.luatexversion > 44)
     --    or (status and status.luatex_version and status.luatex_version > 44) then
     --    require(filename)
@@ -208,24 +208,24 @@ local function load_luaextra_module(filename)
     --end
 end
 
-load_luaextra_module("luaextra-string.lua")
-load_luaextra_module("luaextra-lpeg.lua")
-load_luaextra_module("luaextra-boolean.lua")
-load_luaextra_module("luaextra-number.lua")
-load_luaextra_module("luaextra-math.lua")
-load_luaextra_module("luaextra-table.lua")
-load_luaextra_module("luaextra-aux.lua")
-load_luaextra_module("luaextra-io.lua")
-load_luaextra_module("luaextra-os.lua")
-load_luaextra_module("luaextra-file.lua")
-load_luaextra_module("luaextra-md5.lua")
-load_luaextra_module("luaextra-dir.lua")
-load_luaextra_module("luaextra-unicode.lua")
-load_luaextra_module("luaextra-utils.lua")
-load_luaextra_module("luaextra-dimen.lua")
-load_luaextra_module("luaextra-url.lua")
-load_luaextra_module("luaextra-set.lua")
-load_luaextra_module("luaextra-dimen.lua")
+load_lualibs_module("lualibs-string.lua")
+load_lualibs_module("lualibs-lpeg.lua")
+load_lualibs_module("lualibs-boolean.lua")
+load_lualibs_module("lualibs-number.lua")
+load_lualibs_module("lualibs-math.lua")
+load_lualibs_module("lualibs-table.lua")
+load_lualibs_module("lualibs-aux.lua")
+load_lualibs_module("lualibs-io.lua")
+load_lualibs_module("lualibs-os.lua")
+load_lualibs_module("lualibs-file.lua")
+load_lualibs_module("lualibs-md5.lua")
+load_lualibs_module("lualibs-dir.lua")
+load_lualibs_module("lualibs-unicode.lua")
+load_lualibs_module("lualibs-utils.lua")
+load_lualibs_module("lualibs-dimen.lua")
+load_lualibs_module("lualibs-url.lua")
+load_lualibs_module("lualibs-set.lua")
+load_lualibs_module("lualibs-dimen.lua")
 
 %    \end{macrocode}
 % Aliases for backward compatibility.
