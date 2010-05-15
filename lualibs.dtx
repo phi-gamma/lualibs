@@ -167,6 +167,8 @@ and the derived file lualibs.lua.
 % \fi
 %
 %    \begin{macrocode}
+module('lualibs', package.seeall)
+
 do
     local lualibs_module = {
         name          = "lualibs",
@@ -177,7 +179,7 @@ do
         copyright     = "PRAGMA ADE / ConTeXt Development Team",
         license       = "See ConTeXt's mreadme.pdf for the license",
     }
-    if luatexbase then
+    if luatexbase and luatexbase.provides_module then
         luatexbase.provides_module(lualibs_module)
     end
 end
