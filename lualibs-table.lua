@@ -11,8 +11,56 @@ table.join = table.concat
 local concat, sort, insert, remove = table.concat, table.sort, table.insert, table.remove
 local format, find, gsub, lower, dump, match = string.format, string.find, string.gsub, string.lower, string.dump, string.match
 local getmetatable, setmetatable = getmetatable, setmetatable
-local type, next, tostring, tonumber, ipairs, pairs = type, next, tostring, tonumber, ipairs, pairs
-local unpack = unpack or table.unpack
+local type, next, tostring, tonumber, ipairs = type, next, tostring, tonumber, ipairs
+
+-- Starting with version 5.2 Lua no longer provide ipairs, which makes
+-- sense. As we already used the for loop and # in most places the
+-- impact on ConTeXt was not that large; the remaining ipairs already
+-- have been replaced. In a similar fashio we also hardly used pairs.
+--
+-- Just in case, we provide the fallbacks as discussed in Programming
+-- in Lua (http://www.lua.org/pil/7.3.html):
+
+if not ipairs then
+
+    -- for k, v in ipairs(t) do                ... end
+    -- for k=1,#t            do local v = t[k] ... end
+
+    local function iterate(a,i)
+        i = i + 1
+        local v = a[i]
+        if v ~= nil then
+            return i, v --, nil
+        end
+    end
+
+    function ipairs(a)
+        return iterate, a, 0
+    end
+
+end
+
+if not pairs then
+
+    -- for k, v in pairs(t) do ... end
+    -- for k, v in next, t  do ... end
+
+    function pairs(t)
+        return next, t -- , nil
+    end
+
+end
+
+-- Also, unpack has been moved to the table table, and for compatiility
+-- reasons we provide both now.
+
+if not table.unpack then
+    table.unpack = _G.unpack
+elseif not unpack then
+    _G.unpack = table.unpack
+end
+
+-- extra functions, some might go (when not used)
 
 function table.strip(tab)
     local lst = { }
@@ -78,7 +126,7 @@ end
 table.sortedkeys     = sortedkeys
 table.sortedhashkeys = sortedhashkeys
 
-function table.sortedpairs(t)
+function table.sortedhash(t)
     local s = sortedhashkeys(t) -- maybe just sortedkeys
     local n = 0
     local function kv(s)
@@ -88,6 +136,8 @@ function table.sortedpairs(t)
     end
     return kv, s
 end
+
+table.sortedpairs = table.sortedhash
 
 function table.append(t, list)
     for _,v in next, list do
@@ -197,7 +247,7 @@ end
 table.fastcopy = fastcopy
 table.copy     = copy
 
--- rougly: copy-loop : unpack : sub == 0.9 : 0.4 : 0.45 (so in critical apps, use unpack)
+-- roughly: copy-loop : unpack : sub == 0.9 : 0.4 : 0.45 (so in critical apps, use unpack)
 
 function table.sub(t,i,j)
     return { unpack(t,i,j) }
@@ -211,18 +261,18 @@ end
 
 -- slower than #t on indexed tables (#t only returns the size of the numerically indexed slice)
 
-function table.is_empty(t)
+function table.is_empty(t) -- obolete, use inline code instead
     return not t or not next(t)
 end
 
-function table.one_entry(t)
+function table.one_entry(t) -- obolete, use inline code instead
     local n = next(t)
     return n and not next(t,n)
 end
 
-function table.starts_at(t)
-    return ipairs(t,1)(t,0)
-end
+--~ function table.starts_at(t) -- obsolete, not nice anyway
+--~     return ipairs(t,1)(t,0)
+--~ end
 
 function table.tohash(t,value)
     local h = { }
@@ -326,7 +376,7 @@ local function do_serialize(root,name,depth,level,indexed)
     end
     -- we could check for k (index) being number (cardinal)
     if root and next(root) then
-        local first, last = nil, 0 -- #root cannot be trusted here
+        local first, last = nil, 0 -- #root cannot be trusted here (will be ok in 5.2 when ipairs is gone)
         if compact then
             -- NOT: for k=1,#root do (we need to quit at nil)
             for k,v in ipairs(root) do -- can we use next?
@@ -857,3 +907,4 @@ function table.insert_after_value(t,value,extra)
     end
     insert(t,#t+1,extra)
 end
+
