@@ -33,7 +33,7 @@
 \input docstrip.tex
 \Msg{************************************************************************}
 \Msg{* Installation}
-\Msg{* Package: lualibs 2010/05/21 v0.94 Lua additional functions.}
+\Msg{* Package: lualibs 2010/06/22 v0.95 Lua additional functions.}
 \Msg{************************************************************************}
 
 \keepsilent
@@ -90,7 +90,7 @@ and the derived file lualibs.lua.
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesFile{lualibs.drv}
-  [2010/05/21 v0.94 Lua additional functions.]
+  [2010/06/22 v0.95 Lua additional functions.]
 \documentclass{ltxdoc}
 \EnableCrossrefs
 \CodelineIndex
@@ -120,7 +120,7 @@ and the derived file lualibs.lua.
 % \GetFileInfo{lualibs.drv}
 %
 % \title{The \textsf{lualibs} package}
-% \date{2010/05/21 v0.94}
+% \date{2010/06/22 v0.95}
 % \author{Elie Roux \\ \texttt{elie.roux@telecom-bretagne.eu}}
 %
 % \maketitle
@@ -133,33 +133,24 @@ and the derived file lualibs.lua.
 %
 % \section{Overview}
 %
-% Lua is a very minimal language, and it does not have a lot of built-in
-% functions. Some functions will certainly be needed by a lot of packages.
-% Instead of making each of them implement these functions, the aim of this
-% package is to provide a standard set of functions. All functions are taken
-% from Con\TeX t libraries.
+% Lua is a very minimal language, and it does not have a minimal standard
+% library. The aim of this package is to provide an extended standard library,
+% to be used by various Lua\TeX\ packages. The code is specific to Lua\TeX\
+% and depends on Lua\TeX\ functions and modules not available in regular lua.
 %
-% There are some differences with the Con\TeX t funtions though, especially on
-% names: for example the \texttt{file.*} funtions are renamed in
-% \texttt{fpath.*}. It seems more logical as they deal with file paths, not
-% files. Also the \texttt{file.is\_readable} and \texttt{file.is\_writable}
-% are renamed \texttt{lfs.is\_readable} and \texttt{lfs.is\_writable}.
+% \noindent The code is derived from Con\TeX t libraries.
 %
-% If you use a function you think is missing in this file, please tell the
-% maintainer.
+% \section{Usage}
 %
-% \texttt{Warning:} Even if the names will certainly remain the same, some
-% implementations may differ, and some functions might appear or dissapear. As
-% Lua\TeX\ is not stable, this file is not neither.
+% You can either load the \texttt{lualibs} module, which will load all other
+% modules, provided by this package: |require("lualibs")|, or explicitly
+% load the modules you need, e.g.: |require("lualibs-table")|.
 %
-% All functions are described in this document, but the one of the functions
-% you'll use most will certainly be \texttt{table.serialize} (also named
-% \texttt{table.tostring}) that takes a table and returns an intented string
-% describing the table. It describes the table so that Lua\TeX\ can read it
-% again as a table. You can do a lot of things with this functions, like
-% printing a table for debugging, or saving a table into a file. Functions are
-% also converted into bytecode to be saved.
+% \noindent If your code is running under \textsf{texlua}, you will need to
+% initialize \textsf{kpse} library so that |require()| can find files under
+% TEXMF tree: |kpse.set_program_name("luatex")|.
 %
+% \pagebreak
 % \section{\texttt{lualibs.lua}}
 %
 % \iffalse
@@ -167,21 +158,20 @@ and the derived file lualibs.lua.
 % \fi
 %
 %    \begin{macrocode}
+
 module('lualibs', package.seeall)
 
-do
-    local lualibs_module = {
-        name          = "lualibs",
-        version       = 0.94,
-        date          = "2010/05/21",
-        description   = "Lua additional functions.",
-        author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux",
-        copyright     = "PRAGMA ADE / ConTeXt Development Team",
-        license       = "See ConTeXt's mreadme.pdf for the license",
-    }
-    if luatexbase and luatexbase.provides_module then
-        luatexbase.provides_module(lualibs_module)
-    end
+local lualibs_module = {
+    name          = "lualibs",
+    version       = 0.95,
+    date          = "2010/06/22",
+    description   = "Lua additional functions.",
+    author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux",
+    copyright     = "PRAGMA ADE / ConTeXt Development Team",
+    license       = "See ConTeXt's mreadme.pdf for the license",
+}
+if luatexbase and luatexbase.provides_module then
+    luatexbase.provides_module(lualibs_module)
 end
 
 %    \end{macrocode}
