@@ -158,7 +158,6 @@ and the derived file lualibs.lua.
 % \fi
 %
 %    \begin{macrocode}
-
 module('lualibs', package.seeall)
 
 local lualibs_module = {
@@ -170,14 +169,15 @@ local lualibs_module = {
     copyright     = "PRAGMA ADE / ConTeXt Development Team",
     license       = "See ConTeXt's mreadme.pdf for the license",
 }
+
 if luatexbase and luatexbase.provides_module then
     luatexbase.provides_module(lualibs_module)
 end
-
 %    \end{macrocode}
+%
 % Load the modules.
+%
 %    \begin{macrocode}
-
 require("lualibs-string")
 require("lualibs-lpeg")
 require("lualibs-boolean")
@@ -196,7 +196,6 @@ require("lualibs-dimen")
 require("lualibs-url")
 require("lualibs-set")
 require("lualibs-dimen")
-
 %    \end{macrocode}
 %
 % \iffalse
