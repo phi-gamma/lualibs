@@ -183,51 +183,29 @@ do
         luatexbase.provides_module(lualibs_module)
     end
 end
-%    \end{macrocode}
-% Initialize \textsf{Kpathsea} library, so that |require()| will use it to
-% locate modules.
-%    \begin{macrocode}
-
-kpse.set_program_name("luatex")
 
 %    \end{macrocode}
-% We could load the modules with |require|, but this works only from version
-% 0.44, and doesn't work in Debian, so we simply use |dofile|.
+% Load the modules.
 %    \begin{macrocode}
 
-local function load_lualibs_module(filename)
-    local path = kpse.find_file(filename)
-    if not path then
-        texio.write_nl(string.format("lualibs: error: cannot find file %s", filename))
-        return
-    end
-    texio.write_nl('log', string.format("lualibs: loading file %s", path))
-    --if (tex and tex.luatexversion and tex.luatexversion > 44)
-    --    or (status and status.luatex_version and status.luatex_version > 44) then
-    --    require(filename)
-    --else
-        dofile(path)
-    --end
-end
-
-load_lualibs_module("lualibs-string.lua")
-load_lualibs_module("lualibs-lpeg.lua")
-load_lualibs_module("lualibs-boolean.lua")
-load_lualibs_module("lualibs-number.lua")
-load_lualibs_module("lualibs-math.lua")
-load_lualibs_module("lualibs-table.lua")
-load_lualibs_module("lualibs-aux.lua")
-load_lualibs_module("lualibs-io.lua")
-load_lualibs_module("lualibs-os.lua")
-load_lualibs_module("lualibs-file.lua")
-load_lualibs_module("lualibs-md5.lua")
-load_lualibs_module("lualibs-dir.lua")
-load_lualibs_module("lualibs-unicode.lua")
-load_lualibs_module("lualibs-utils.lua")
-load_lualibs_module("lualibs-dimen.lua")
-load_lualibs_module("lualibs-url.lua")
-load_lualibs_module("lualibs-set.lua")
-load_lualibs_module("lualibs-dimen.lua")
+require("lualibs-string")
+require("lualibs-lpeg")
+require("lualibs-boolean")
+require("lualibs-number")
+require("lualibs-math")
+require("lualibs-table")
+require("lualibs-aux")
+require("lualibs-io")
+require("lualibs-os")
+require("lualibs-file")
+require("lualibs-md5")
+require("lualibs-dir")
+require("lualibs-unicode")
+require("lualibs-utils")
+require("lualibs-dimen")
+require("lualibs-url")
+require("lualibs-set")
+require("lualibs-dimen")
 
 %    \end{macrocode}
 % Aliases for backward compatibility.
@@ -239,7 +217,7 @@ lfs.is_readable = file.is_readable
 lfs.is_writable = file.is_writable
 
 %    \end{macrocode}
-% Functions no longer provided by Con\TeX t module.
+% Functions no longer provided by Con\TeX t modules.
 %
 %    \begin{macro}{string:stripspaces}
 %
