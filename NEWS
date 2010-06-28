@@ -1,4 +1,10 @@
                         History of the lualibs package
+2010/06/28 v0.95
+    * don't use kpse.set_program_name(), people loading lualibs with texlua
+      should set it themselves, to avoid possible clashes
+    * drop deprecated functions and aliases
+    * update the documentation
+
 2010/05/28 v0.94
     * sync with ConTeXt beta 2010.05.20, adding new functions used
       by luaotfload
