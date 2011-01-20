@@ -26,15 +26,15 @@ local attributes = lfs.attributes
 local walkdir    = lfs.dir
 
 local function glob_pattern(path,patt,recurse,action)
-    local ok, scanner
+    local ok, scanner, dirobj
     if path == "/" then
-        ok, scanner = xpcall(function() return walkdir(path..".") end, function() end) -- kepler safe
+        ok, scanner, dirobj = xpcall(function() return walkdir(path..".") end, function() end) -- kepler safe
     else
-        ok, scanner = xpcall(function() return walkdir(path)      end, function() end) -- kepler safe
+        ok, scanner, dirobj = xpcall(function() return walkdir(path)      end, function() end) -- kepler safe
     end
     if ok and type(scanner) == "function" then
         if not find(path,"/$") then path = path .. '/' end
-        for name in scanner do
+        for name in scanner, dirobj do
             local full = path .. name
             local mode = attributes(full,'mode')
             if mode == 'file' then
@@ -51,16 +51,16 @@ end
 dir.glob_pattern = glob_pattern
 
 local function collect_pattern(path,patt,recurse,result)
-    local ok, scanner
+    local ok, scanner, dirobj
     result = result or { }
     if path == "/" then
-        ok, scanner = xpcall(function() return walkdir(path..".") end, function() end) -- kepler safe
+        ok, scanner, dirobj = xpcall(function() return walkdir(path..".") end, function() end) -- kepler safe
     else
-        ok, scanner = xpcall(function() return walkdir(path)      end, function() end) -- kepler safe
+        ok, scanner, dirobj = xpcall(function() return walkdir(path)      end, function() end) -- kepler safe
     end
     if ok and type(scanner) == "function" then
         if not find(path,"/$") then path = path .. '/' end
-        for name in scanner do
+        for name in scanner, dirobj do
             local full = path .. name
             local attr = attributes(full)
             local mode = attr.mode
