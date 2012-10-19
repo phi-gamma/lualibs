@@ -234,3 +234,65 @@ function io.ask(question,default,options)
         end
     end
 end
+
+local function readnumber(f,n,m)
+    if m then
+        f:seek("set",n)
+        n = m
+    end
+    if n == 1 then
+        return byte(f:read(1))
+    elseif n == 2 then
+        local a, b = byte(f:read(2),1,2)
+        return 256 * a + b
+    elseif n == 3 then
+        local a, b, c = byte(f:read(3),1,3)
+        return 256*256 * a + 256 * b + c
+    elseif n == 4 then
+        local a, b, c, d = byte(f:read(4),1,4)
+        return 256*256*256 * a + 256*256 * b + 256 * c + d
+    elseif n == 8 then
+        local a, b = readnumber(f,4), readnumber(f,4)
+        return 256 * a + b
+    elseif n == 12 then
+        local a, b, c = readnumber(f,4), readnumber(f,4), readnumber(f,4)
+        return 256*256 * a + 256 * b + c
+    elseif n == -2 then
+        local b, a = byte(f:read(2),1,2)
+        return 256*a + b
+    elseif n == -3 then
+        local c, b, a = byte(f:read(3),1,3)
+        return 256*256 * a + 256 * b + c
+    elseif n == -4 then
+        local d, c, b, a = byte(f:read(4),1,4)
+        return 256*256*256 * a + 256*256 * b + 256*c + d
+    elseif n == -8 then
+        local h, g, f, e, d, c, b, a = byte(f:read(8),1,8)
+        return 256*256*256*256*256*256*256 * a +
+                   256*256*256*256*256*256 * b +
+                       256*256*256*256*256 * c +
+                           256*256*256*256 * d +
+                               256*256*256 * e +
+                                   256*256 * f +
+                                       256 * g +
+                                             h
+    else
+        return 0
+    end
+end
+
+io.readnumber = readnumber
+
+function io.readstring(f,n,m)
+    if m then
+        f:seek("set",n)
+        n = m
+    end
+    local str = gsub(f:read(n),"%z","")
+    return str
+end
+
+--
+
+if not io.i_limiter then function io.i_limiter() end end -- dummy so we can test safely
+if not io.o_limiter then function io.o_limiter() end end -- dummy so we can test safely

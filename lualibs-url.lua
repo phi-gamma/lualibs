@@ -339,3 +339,5 @@ end
 
 --~ test("zip:///oeps/oeps.zip#bla/bla.tex")
 --~ test("zip:///oeps/oeps.zip?bla/bla.tex")
+
+--~ table.print(url.hashed("/test?test"))

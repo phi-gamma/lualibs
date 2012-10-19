@@ -115,8 +115,8 @@ if not os.__getenv__ then
     end
 
 end
-local find, format, gsub = string.find, string.format, string.gsub
-local random, ceil = math.random, math.ceil
+
+-- end of environment hack
 
 local execute, spawn, exec, iopopen, ioflush = os.execute, os.spawn or os.execute, os.exec or os.execute, io.popen, io.flush
 
@@ -381,3 +381,74 @@ function os.timezone(delta)
         return 1
     end
 end
+
+local timeformat = format("%%s%s",os.timezone(true))
+local dateformat = "!%Y-%m-%d %H:%M:%S"
+
+function os.fulltime(t,default)
+    t = tonumber(t) or 0
+    if t > 0 then
+        -- valid time
+    elseif default then
+        return default
+    else
+        t = nil
+    end
+    return format(timeformat,date(dateformat,t))
+end
+
+local dateformat = "%Y-%m-%d %H:%M:%S"
+
+function os.localtime(t,default)
+    t = tonumber(t) or 0
+    if t > 0 then
+        -- valid time
+    elseif default then
+        return default
+    else
+        t = nil
+    end
+    return date(dateformat,t)
+end
+
+function os.converttime(t,default)
+    local t = tonumber(t)
+    if t and t > 0 then
+        return date(dateformat,t)
+    else
+        return default or "-"
+    end
+end
+
+local memory = { }
+
+local function which(filename)
+    local fullname = memory[filename]
+    if fullname == nil then
+        local suffix = file.suffix(filename)
+        local suffixes = suffix == "" and os.binsuffixes or { suffix }
+        for directory in gmatch(os.getenv("PATH"),"[^" .. io.pathseparator .."]+") do
+            local df = file.join(directory,filename)
+            for i=1,#suffixes do
+                local dfs = file.addsuffix(df,suffixes[i])
+                if io.exists(dfs) then
+                    fullname = dfs
+                    break
+                end
+            end
+        end
+        if not fullname then
+            fullname = false
+        end
+        memory[filename] = fullname
+    end
+    return fullname
+end
+
+os.which = which
+os.where = which
+
+-- print(os.which("inkscape.exe"))
+-- print(os.which("inkscape"))
+-- print(os.which("gs.exe"))
+-- print(os.which("ps2pdf"))

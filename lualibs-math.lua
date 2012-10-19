@@ -9,21 +9,15 @@ if not modules then modules = { } end modules ['l-math'] = {
 local floor, sin, cos, tan = math.floor, math.sin, math.cos, math.tan
 
 if not math.round then
-    function math.round(x)
-        return floor(x + 0.5)
-    end
+    function math.round(x) return floor(x + 0.5) end
 end
 
 if not math.div then
-    function math.div(n,m)
-        return floor(n/m)
-    end
+    function math.div(n,m) return floor(n/m) end
 end
 
 if not math.mod then
-    function math.mod(n,m)
-        return n % m
-    end
+    function math.mod(n,m) return n % m end
 end
 
 local pipi = 2*math.pi/360

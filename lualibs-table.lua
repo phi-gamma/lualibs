@@ -6,17 +6,19 @@ if not modules then modules = { } end modules ['l-table'] = {
     license   = "see context related readme files"
 }
 
-table.join = table.concat
-
+local type, next, tostring, tonumber, ipairs = type, next, tostring, tonumber, ipairs
+local table, string = table, string
 local concat, sort, insert, remove = table.concat, table.sort, table.insert, table.remove
 local format, find, gsub, lower, dump, match = string.format, string.find, string.gsub, string.lower, string.dump, string.match
 local getmetatable, setmetatable = getmetatable, setmetatable
-local type, next, tostring, tonumber, ipairs = type, next, tostring, tonumber, ipairs
+local getinfo = debug.getinfo
 
 -- Starting with version 5.2 Lua no longer provide ipairs, which makes
 -- sense. As we already used the for loop and # in most places the
 -- impact on ConTeXt was not that large; the remaining ipairs already
--- have been replaced. In a similar fashio we also hardly used pairs.
+-- have been replaced. In a similar fashion we also hardly used pairs.
+--
+-- Hm, actually ipairs was retained, but we no longer use it anyway.
 --
 -- Just in case, we provide the fallbacks as discussed in Programming
 -- in Lua (http://www.lua.org/pil/7.3.html):
@@ -63,97 +65,134 @@ end
 -- extra functions, some might go (when not used)
 
 function table.strip(tab)
-    local lst = { }
+    local lst, l = { }, 0
     for i=1,#tab do
         local s = gsub(tab[i],"^%s*(.-)%s*$","%1")
         if s == "" then
             -- skip this one
         else
-            lst[#lst+1] = s
+            l = l + 1
+            lst[l] = s
         end
     end
     return lst
 end
 
 function table.keys(t)
-    local k = { }
-    for key, _ in next, t do
-        k[#k+1] = key
+    if t then
+        local keys, k = { }, 0
+        for key, _ in next, t do
+            k = k + 1
+            keys[k] = key
+        end
+        return keys
+    else
+        return { }
     end
-    return k
 end
 
 local function compare(a,b)
-    return (tostring(a) < tostring(b))
+    local ta, tb = type(a), type(b) -- needed, else 11 < 2
+    if ta == tb then
+        return a < b
+    else
+        return tostring(a) < tostring(b)
+    end
 end
 
 local function sortedkeys(tab)
-    local srt, kind = { }, 0 -- 0=unknown 1=string, 2=number 3=mixed
-    for key,_ in next, tab do
-        srt[#srt+1] = key
-        if kind == 3 then
-            -- no further check
-        else
-            local tkey = type(key)
-            if tkey == "string" then
-            --  if kind == 2 then kind = 3 else kind = 1 end
-                kind = (kind == 2 and 3) or 1
-            elseif tkey == "number" then
-            --  if kind == 1 then kind = 3 else kind = 2 end
-                kind = (kind == 1 and 3) or 2
+    if tab then
+        local srt, category, s = { }, 0, 0 -- 0=unknown 1=string, 2=number 3=mixed
+        for key,_ in next, tab do
+            s = s + 1
+            srt[s] = key
+            if category == 3 then
+                -- no further check
             else
-                kind = 3
+                local tkey = type(key)
+                if tkey == "string" then
+                    category = (category == 2 and 3) or 1
+                elseif tkey == "number" then
+                    category = (category == 1 and 3) or 2
+                else
+                    category = 3
+                end
             end
         end
-    end
-    if kind == 0 or kind == 3 then
-        sort(srt,compare)
+        if category == 0 or category == 3 then
+            sort(srt,compare)
+        else
+            sort(srt)
+        end
+        return srt
     else
-        sort(srt)
+        return { }
     end
-    return srt
 end
 
 local function sortedhashkeys(tab) -- fast one
-    local srt = { }
-    for key,_ in next, tab do
-        srt[#srt+1] = key
+    if tab then
+        local srt, s = { }, 0
+        for key,_ in next, tab do
+            if key then
+                s= s + 1
+                srt[s] = key
+            end
+        end
+        sort(srt)
+        return srt
+    else
+        return { }
     end
-    sort(srt)
-    return srt
 end
 
 table.sortedkeys     = sortedkeys
 table.sortedhashkeys = sortedhashkeys
 
-function table.sortedhash(t)
-    local s = sortedhashkeys(t) -- maybe just sortedkeys
-    local n = 0
-    local function kv(s)
-        n = n + 1
-        local k = s[n]
-        return k, t[k]
+local function nothing() end
+
+local function sortedhash(t)
+    if t then
+        local n, s = 0, sortedkeys(t) -- the robust one
+        local function kv(s)
+            n = n + 1
+            local k = s[n]
+            return k, t[k]
+        end
+        return kv, s
+    else
+        return nothing
     end
-    return kv, s
 end
 
-table.sortedpairs = table.sortedhash
+table.sortedhash  = sortedhash
+table.sortedpairs = sortedhash
 
-function table.append(t, list)
-    for _,v in next, list do
-        insert(t,v)
+function table.append(t,list)
+    local n = #t
+    for i=1,#list do
+        n = n + 1
+        t[n] = list[i]
     end
+    return t
 end
 
 function table.prepend(t, list)
-    for k,v in next, list do
-        insert(t,k,v)
+    local nl = #list
+    local nt = nl + #t
+    for i=#t,1,-1 do
+        t[nt] = t[i]
+        nt = nt - 1
     end
+    for i=1,#list do
+        t[i] = list[i]
+    end
+    return t
 end
 
 function table.merge(t, ...) -- first one is target
-    t = t or {}
-    local lst = {...}
+    t = t or { }
+    local lst = { ... }
     for i=1,#lst do
         for k, v in next, lst[i] do
             t[k] = v
@@ -163,7 +202,7 @@ function table.merge(t, ...) -- first one is target
 end
 
 function table.merged(...)
-    local tmp, lst = { }, {...}
+    local tmp, lst = { }, { ... }
     for i=1,#lst do
         for k, v in next, lst[i] do
             tmp[k] = v
@@ -173,47 +212,53 @@ function table.merged(...)
 end
 
 function table.imerge(t, ...)
-    local lst = {...}
+    local lst, nt = { ... }, #t
     for i=1,#lst do
         local nst = lst[i]
         for j=1,#nst do
-            t[#t+1] = nst[j]
+            nt = nt + 1
+            t[nt] = nst[j]
         end
     end
     return t
 end
 
 function table.imerged(...)
-    local tmp, lst = { }, {...}
+    local tmp, ntmp, lst = { }, 0, {...}
     for i=1,#lst do
         local nst = lst[i]
         for j=1,#nst do
-            tmp[#tmp+1] = nst[j]
+            ntmp = ntmp + 1
+            tmp[ntmp] = nst[j]
         end
     end
     return tmp
 end
 
-local function fastcopy(old) -- fast one
+local function fastcopy(old,metatabletoo) -- fast one
     if old then
         local new = { }
         for k,v in next, old do
             if type(v) == "table" then
-                new[k] = fastcopy(v) -- was just table.copy
+                new[k] = fastcopy(v,metatabletoo) -- was just table.copy
             else
                 new[k] = v
             end
         end
-        -- optional second arg
-        local mt = getmetatable(old)
-        if mt then
-            setmetatable(new,mt)
+        if metatabletoo then
+            -- optional second arg
+            local mt = getmetatable(old)
+            if mt then
+                setmetatable(new,mt)
+            end
         end
         return new
     else
         return { }
     end
 end
+
+-- todo : copy without metatable
 
 local function copy(t, tables) -- taken from lua wiki, slightly adapted
     tables = tables or { }
@@ -247,32 +292,13 @@ end
 table.fastcopy = fastcopy
 table.copy     = copy
 
--- roughly: copy-loop : unpack : sub == 0.9 : 0.4 : 0.45 (so in critical apps, use unpack)
-
-function table.sub(t,i,j)
-    return { unpack(t,i,j) }
-end
-
-function table.replace(a,b)
-    for k,v in next, b do
-        a[k] = v
+function table.derive(parent)
+    local child = { }
+    if parent then
+        setmetatable(child,{ __index = parent })
     end
+    return child
 end
-
--- slower than #t on indexed tables (#t only returns the size of the numerically indexed slice)
-
-function table.is_empty(t) -- obolete, use inline code instead
-    return not t or not next(t)
-end
-
-function table.one_entry(t) -- obolete, use inline code instead
-    local n = next(t)
-    return n and not next(t,n)
-end
-
---~ function table.starts_at(t) -- obsolete, not nice anyway
---~     return ipairs(t,1)(t,0)
---~ end
 
 function table.tohash(t,value)
     local h = { }
@@ -286,27 +312,19 @@ function table.tohash(t,value)
 end
 
 function table.fromhash(t)
-    local h = { }
+    local hsh, h = { }, 0
     for k, v in next, t do -- no ipairs here
-        if v then h[#h+1] = k end
+        if v then
+            h = h + 1
+            hsh[h] = k
+        end
     end
-    return h
+    return hsh
 end
-
---~ print(table.serialize(t), "\n")
---~ print(table.serialize(t,"name"), "\n")
---~ print(table.serialize(t,false), "\n")
---~ print(table.serialize(t,true), "\n")
---~ print(table.serialize(t,"name",true), "\n")
---~ print(table.serialize(t,"name",true,true), "\n")
-
-table.serialize_functions = true
-table.serialize_compact   = true
-table.serialize_inline    = true
 
 local noquotes, hexify, handle, reduce, compact, inline, functions
 
-local reserved = table.tohash { -- intercept a language flaw, no reserved words as key
+local reserved = table.tohash { -- intercept a language inconvenience: no reserved words as key
     'and', 'break', 'do', 'else', 'elseif', 'end', 'false', 'for', 'function', 'if',
     'in', 'local', 'nil', 'not', 'or', 'repeat', 'return', 'then', 'true', 'until', 'while',
 }
@@ -318,20 +336,23 @@ local function simple_table(t)
             n = n + 1
         end
         if n == #t then
-            local tt = { }
+            local tt, nt = { }, 0
             for i=1,#t do
                 local v = t[i]
                 local tv = type(v)
                 if tv == "number" then
+                    nt = nt + 1
                     if hexify then
-                        tt[#tt+1] = format("0x%04X",v)
+                        tt[nt] = format("0x%04X",v)
                     else
-                        tt[#tt+1] = tostring(v) -- tostring not needed
+                        tt[nt] = tostring(v) -- tostring not needed
                     end
                 elseif tv == "boolean" then
-                    tt[#tt+1] = tostring(v)
+                    nt = nt + 1
+                    tt[nt] = tostring(v)
                 elseif tv == "string" then
-                    tt[#tt+1] = format("%q",v)
+                    nt = nt + 1
+                    tt[nt] = format("%q",v)
                 else
                     tt = nil
                     break
@@ -352,36 +373,56 @@ end
 
 -- problem: there no good number_to_string converter with the best resolution
 
+local function dummy() end
+
 local function do_serialize(root,name,depth,level,indexed)
     if level > 0 then
         depth = depth .. " "
         if indexed then
             handle(format("%s{",depth))
-        elseif name then
-        --~ handle(format("%s%s={",depth,key(name)))
-            if type(name) == "number" then -- or find(k,"^%d+$") then
+        else
+            local tn = type(name)
+            if tn == "number" then -- or find(k,"^%d+$") then
                 if hexify then
                     handle(format("%s[0x%04X]={",depth,name))
                 else
                     handle(format("%s[%s]={",depth,name))
                 end
-            elseif noquotes and not reserved[name] and find(name,"^%a[%w%_]*$") then
-                handle(format("%s%s={",depth,name))
+            elseif tn == "string" then
+                if noquotes and not reserved[name] and find(name,"^%a[%w%_]*$") then
+                    handle(format("%s%s={",depth,name))
+                else
+                    handle(format("%s[%q]={",depth,name))
+                end
+            elseif tn == "boolean" then
+                handle(format("%s[%s]={",depth,tostring(name)))
             else
-                handle(format("%s[%q]={",depth,name))
+                handle(format("%s{",depth))
             end
-        else
-            handle(format("%s{",depth))
         end
     end
     -- we could check for k (index) being number (cardinal)
     if root and next(root) then
-        local first, last = nil, 0 -- #root cannot be trusted here (will be ok in 5.2 when ipairs is gone)
+     -- local first, last = nil, 0 -- #root cannot be trusted here (will be ok in 5.2 when ipairs is gone)
+     -- if compact then
+     --     -- NOT: for k=1,#root do (we need to quit at nil)
+     --     for k,v in ipairs(root) do -- can we use next?
+     --         if not first then first = k end
+     --         last = last + 1
+     --     end
+     -- end
+        local first, last = nil, 0
         if compact then
-            -- NOT: for k=1,#root do (we need to quit at nil)
-            for k,v in ipairs(root) do -- can we use next?
-                if not first then first = k end
-                last = last + 1
+            last = #root
+            for k=1,last do
+--                 if not root[k] then
+                if root[k] == nil then
+                    last = k - 1
+                    break
+                end
+            end
+            if last > 0 then
+                first = 1
             end
         end
         local sk = sortedkeys(root)
@@ -391,8 +432,8 @@ local function do_serialize(root,name,depth,level,indexed)
             --~ if v == root then
                 -- circular
             --~ else
-            local t = type(v)
-            if compact and first and type(k) == "number" and k >= first and k <= last then
+            local t, tk = type(v), type(k)
+            if compact and first and tk == "number" and k >= first and k <= last then
                 if t == "number" then
                     if hexify then
                         handle(format("%s 0x%04X,",depth,v))
@@ -434,16 +475,17 @@ local function do_serialize(root,name,depth,level,indexed)
                     handle(format("%s __p__=nil,",depth))
                 end
             elseif t == "number" then
-            --~ if hexify then
-            --~     handle(format("%s %s=0x%04X,",depth,key(k),v))
-            --~ else
-            --~     handle(format("%s %s=%s,",depth,key(k),v)) -- %.99g
-            --~ end
-                if type(k) == "number" then -- or find(k,"^%d+$") then
+                if tk == "number" then -- or find(k,"^%d+$") then
                     if hexify then
                         handle(format("%s [0x%04X]=0x%04X,",depth,k,v))
                     else
                         handle(format("%s [%s]=%s,",depth,k,v)) -- %.99g
+                    end
+                elseif tk == "boolean" then
+                    if hexify then
+                        handle(format("%s [%s]=0x%04X,",depth,tostring(k),v))
+                    else
+                        handle(format("%s [%s]=%s,",depth,tostring(k),v)) -- %.99g
                     end
                 elseif noquotes and not reserved[k] and find(k,"^%a[%w%_]*$") then
                     if hexify then
@@ -460,26 +502,28 @@ local function do_serialize(root,name,depth,level,indexed)
                 end
             elseif t == "string" then
                 if reduce and tonumber(v) then
-                --~ handle(format("%s %s=%s,",depth,key(k),v))
-                    if type(k) == "number" then -- or find(k,"^%d+$") then
+                    if tk == "number" then -- or find(k,"^%d+$") then
                         if hexify then
                             handle(format("%s [0x%04X]=%s,",depth,k,v))
                         else
                             handle(format("%s [%s]=%s,",depth,k,v))
                         end
+                    elseif tk == "boolean" then
+                        handle(format("%s [%s]=%s,",depth,tostring(k),v))
                     elseif noquotes and not reserved[k] and find(k,"^%a[%w%_]*$") then
                         handle(format("%s %s=%s,",depth,k,v))
                     else
                         handle(format("%s [%q]=%s,",depth,k,v))
                     end
                 else
-                --~ handle(format("%s %s=%q,",depth,key(k),v))
-                    if type(k) == "number" then -- or find(k,"^%d+$") then
+                    if tk == "number" then -- or find(k,"^%d+$") then
                         if hexify then
                             handle(format("%s [0x%04X]=%q,",depth,k,v))
                         else
                             handle(format("%s [%s]=%q,",depth,k,v))
                         end
+                    elseif tk == "boolean" then
+                        handle(format("%s [%s]=%q,",depth,tostring(k),v))
                     elseif noquotes and not reserved[k] and find(k,"^%a[%w%_]*$") then
                         handle(format("%s %s=%q,",depth,k,v))
                     else
@@ -488,13 +532,14 @@ local function do_serialize(root,name,depth,level,indexed)
                 end
             elseif t == "table" then
                 if not next(v) then
-                    --~ handle(format("%s %s={},",depth,key(k)))
-                    if type(k) == "number" then -- or find(k,"^%d+$") then
+                    if tk == "number" then -- or find(k,"^%d+$") then
                         if hexify then
                             handle(format("%s [0x%04X]={},",depth,k))
                         else
                             handle(format("%s [%s]={},",depth,k))
                         end
+                    elseif tk == "boolean" then
+                        handle(format("%s [%s]={},",depth,tostring(k)))
                     elseif noquotes and not reserved[k] and find(k,"^%a[%w%_]*$") then
                         handle(format("%s %s={},",depth,k))
                     else
@@ -503,13 +548,14 @@ local function do_serialize(root,name,depth,level,indexed)
                 elseif inline then
                     local st = simple_table(v)
                     if st then
-                    --~ handle(format("%s %s={ %s },",depth,key(k),concat(st,", ")))
-                        if type(k) == "number" then -- or find(k,"^%d+$") then
+                        if tk == "number" then -- or find(k,"^%d+$") then
                             if hexify then
                                 handle(format("%s [0x%04X]={ %s },",depth,k,concat(st,", ")))
                             else
                                 handle(format("%s [%s]={ %s },",depth,k,concat(st,", ")))
                             end
+                        elseif tk == "boolean" then -- or find(k,"^%d+$") then
+                            handle(format("%s [%s]={ %s },",depth,tostring(k),concat(st,", ")))
                         elseif noquotes and not reserved[k] and find(k,"^%a[%w%_]*$") then
                             handle(format("%s %s={ %s },",depth,k,concat(st,", ")))
                         else
@@ -522,13 +568,14 @@ local function do_serialize(root,name,depth,level,indexed)
                     do_serialize(v,k,depth,level+1)
                 end
             elseif t == "boolean" then
-            --~ handle(format("%s %s=%s,",depth,key(k),tostring(v)))
-                if type(k) == "number" then -- or find(k,"^%d+$") then
+                if tk == "number" then -- or find(k,"^%d+$") then
                     if hexify then
                         handle(format("%s [0x%04X]=%s,",depth,k,tostring(v)))
                     else
                         handle(format("%s [%s]=%s,",depth,k,tostring(v)))
                     end
+                elseif tk == "boolean" then -- or find(k,"^%d+$") then
+                    handle(format("%s [%s]=%s,",depth,tostring(k),tostring(v)))
                 elseif noquotes and not reserved[k] and find(k,"^%a[%w%_]*$") then
                     handle(format("%s %s=%s,",depth,k,tostring(v)))
                 else
@@ -536,27 +583,31 @@ local function do_serialize(root,name,depth,level,indexed)
                 end
             elseif t == "function" then
                 if functions then
-                    --~ handle(format('%s %s=loadstring(%q),',depth,key(k),dump(v)))
-                    if type(k) == "number" then -- or find(k,"^%d+$") then
+                    local f = getinfo(v).what == "C" and dump(dummy) or dump(v)
+                 -- local f = getinfo(v).what == "C" and dump(function(...) return v(...) end) or dump(v)
+                    if tk == "number" then -- or find(k,"^%d+$") then
                         if hexify then
-                            handle(format("%s [0x%04X]=loadstring(%q),",depth,k,dump(v)))
+                            handle(format("%s [0x%04X]=loadstring(%q),",depth,k,f))
                         else
-                            handle(format("%s [%s]=loadstring(%q),",depth,k,dump(v)))
+                            handle(format("%s [%s]=loadstring(%q),",depth,k,f))
                         end
+                    elseif tk == "boolean" then
+                        handle(format("%s [%s]=loadstring(%q),",depth,tostring(k),f))
                     elseif noquotes and not reserved[k] and find(k,"^%a[%w%_]*$") then
-                        handle(format("%s %s=loadstring(%q),",depth,k,dump(v)))
+                        handle(format("%s %s=loadstring(%q),",depth,k,f))
                     else
-                        handle(format("%s [%q]=loadstring(%q),",depth,k,dump(v)))
+                        handle(format("%s [%q]=loadstring(%q),",depth,k,f))
                     end
                 end
             else
-                --~ handle(format("%s %s=%q,",depth,key(k),tostring(v)))
-                if type(k) == "number" then -- or find(k,"^%d+$") then
+                if tk == "number" then -- or find(k,"^%d+$") then
                     if hexify then
                         handle(format("%s [0x%04X]=%q,",depth,k,tostring(v)))
                     else
                         handle(format("%s [%s]=%q,",depth,k,tostring(v)))
                     end
+                elseif tk == "boolean" then -- or find(k,"^%d+$") then
+                    handle(format("%s [%s]=%q,",depth,tostring(k),tostring(v)))
                 elseif noquotes and not reserved[k] and find(k,"^%a[%w%_]*$") then
                     handle(format("%s %s=%q,",depth,k,tostring(v)))
                 else
@@ -574,15 +625,34 @@ end
 -- replacing handle by a direct t[#t+1] = ... (plus test) is not much
 -- faster (0.03 on 1.00 for zapfino.tma)
 
-local function serialize(root,name,_handle,_reduce,_noquotes,_hexify)
-    noquotes = _noquotes
-    hexify = _hexify
-    handle = _handle or print
-    reduce = _reduce or false
-    compact = table.serialize_compact
-    inline  = compact and table.serialize_inline
-    functions = table.serialize_functions
+local function serialize(_handle,root,name,specification) -- handle wins
     local tname = type(name)
+    if type(specification) == "table" then
+        noquotes  = specification.noquotes
+        hexify    = specification.hexify
+        handle    = _handle or specification.handle or print
+        reduce    = specification.reduce or false
+        functions = specification.functions
+        compact   = specification.compact
+        inline    = specification.inline and compact
+        if functions == nil then
+            functions = true
+        end
+        if compact == nil then
+            compact = true
+        end
+        if inline == nil then
+            inline = compact
+        end
+    else
+        noquotes  = false
+        hexify    = false
+        handle    = _handle or print
+        reduce    = false
+        compact   = true
+        inline    = true
+        functions = true
+    end
     if tname == "string" then
         if name == "return" then
             handle("return {")
@@ -604,8 +674,17 @@ local function serialize(root,name,_handle,_reduce,_noquotes,_hexify)
     else
         handle("t={")
     end
-    if root and next(root) then
-        do_serialize(root,name,"",0,indexed)
+    if root then
+        -- The dummy access will initialize a table that has a delayed initialization
+        -- using a metatable. (maybe explicitly test for metatable)
+        if getmetatable(root) then -- todo: make this an option, maybe even per subtable
+            local dummy = root._w_h_a_t_e_v_e_r_
+            root._w_h_a_t_e_v_e_r_ = nil
+        end
+        -- Let's forget about empty tables.
+        if next(root) then
+            do_serialize(root,name,"",0)
+        end
     end
     handle("}")
 end
@@ -619,18 +698,17 @@ end
 --~ 'return' : return     { }
 --~ number   : [number] = { }
 
-function table.serialize(root,name,reduce,noquotes,hexify)
-    local t = { }
+function table.serialize(root,name,specification)
+    local t, n = { }, 0
     local function flush(s)
-        t[#t+1] = s
+        n = n + 1
+        t[n] = s
     end
-    serialize(root,name,flush,reduce,noquotes,hexify)
+    serialize(flush,root,name,specification)
     return concat(t,"\n")
 end
 
-function table.tohandle(handle,root,name,reduce,noquotes,hexify)
-    serialize(root,name,handle,reduce,noquotes,hexify)
-end
+table.tohandle = serialize
 
 -- sometimes tables are real use (zapfino extra pro is some 85M) in which
 -- case a stepwise serialization is nice; actually, we could consider:
@@ -641,73 +719,63 @@ end
 --
 -- so this is on the todo list
 
-table.tofile_maxtab = 2*1024
+local maxtab = 2*1024
 
-function table.tofile(filename,root,name,reduce,noquotes,hexify)
+function table.tofile(filename,root,name,specification)
     local f = io.open(filename,'w')
     if f then
-        local maxtab = table.tofile_maxtab
         if maxtab > 1 then
-            local t = { }
+            local t, n = { }, 0
             local function flush(s)
-                t[#t+1] = s
-                if #t > maxtab then
+                n = n + 1
+                t[n] = s
+                if n > maxtab then
                     f:write(concat(t,"\n"),"\n") -- hm, write(sometable) should be nice
-                    t = { }
+                    t, n = { }, 0 -- we could recycle t if needed
                 end
             end
-            serialize(root,name,flush,reduce,noquotes,hexify)
+            serialize(flush,root,name,specification)
             f:write(concat(t,"\n"),"\n")
         else
             local function flush(s)
                 f:write(s,"\n")
             end
-            serialize(root,name,flush,reduce,noquotes,hexify)
+            serialize(flush,root,name,specification)
         end
         f:close()
+        io.flush()
     end
 end
 
-local function flatten(t,f,complete) -- is this used? meybe a variant with next, ...
-    for i=1,#t do
-        local v = t[i]
-        if type(v) == "table" then
-            if complete or type(v[1]) == "table" then
-                flatten(v,f,complete)
-            else
-                f[#f+1] = v
-            end
-        else
-            f[#f+1] = v
-        end
-    end
-end
-
-function table.flatten(t)
-    local f = { }
-    flatten(t,f,true)
-    return f
-end
-
-function table.unnest(t) -- bad name
-    local f = { }
-    flatten(t,f,false)
-    return f
-end
-
-table.flatten_one_level = table.unnest
-
--- a better one:
-
-local function flattened(t,f)
-    if not f then
+local function flattened(t,f,depth)
+    if f == nil then
         f = { }
+        depth = 0xFFFF
+    elseif tonumber(f) then
+        -- assume then only two arguments are given
+        depth = f
+        f = { }
+    elseif not depth then
+        depth = 0xFFFF
     end
     for k, v in next, t do
-        if type(v) == "table" then
-            flattened(v,f)
+        if type(k) ~= "number" then
+            if depth > 0 and type(v) == "table" then
+                flattened(v,f,depth-1)
+            else
+                f[k] = v
+            end
+        end
+    end
+    local n = #f
+    for k=1,#t do
+        local v = t[k]
+        if depth > 0 and type(v) == "table" then
+            flattened(v,f,depth-1)
+            n = #f
         else
-            f[k] = v
+            n = n + 1
+            f[n] = v
         end
     end
     return f
@@ -715,49 +783,27 @@ end
 
 table.flattened = flattened
 
--- the next three may disappear
-
-function table.remove_value(t,value) -- todo: n
-    if value then
-        for i=1,#t do
-            if t[i] == value then
-                remove(t,i)
-                -- remove all, so no: return
+local function unnest(t,f) -- only used in mk, for old times sake
+    if not f then          -- and only relevant for token lists
+        f = { }
+    end
+    for i=1,#t do
+        local v = t[i]
+        if type(v) == "table" then
+            if type(v[1]) == "table" then
+                unnest(v,f)
+            else
+                f[#f+1] = v
             end
+        else
+            f[#f+1] = v
         end
     end
+    return f
 end
 
-function table.insert_before_value(t,value,str)
-    if str then
-        if value then
-            for i=1,#t do
-                if t[i] == value then
-                    insert(t,i,str)
-                    return
-                end
-            end
-        end
-        insert(t,1,str)
-    elseif value then
-        insert(t,1,value)
-    end
-end
-
-function table.insert_after_value(t,value,str)
-    if str then
-        if value then
-            for i=1,#t do
-                if t[i] == value then
-                    insert(t,i+1,str)
-                    return
-                end
-            end
-        end
-        t[#t+1] = str
-    elseif value then
-        t[#t+1] = value
-    end
+function table.unnest(t) -- bad name
+    return unnest(t)
 end
 
 local function are_equal(a,b,n,m) -- indexed
@@ -784,7 +830,7 @@ end
 
 local function identical(a,b) -- assumes same structure
     for ka, va in next, a do
-        local vb = b[k]
+        local vb = b[ka]
         if va == vb then
             -- same
         elseif type(va) == "table" and  type(vb) == "table" then
@@ -798,8 +844,8 @@ local function identical(a,b) -- assumes same structure
     return true
 end
 
-table.are_equal = are_equal
 table.identical = identical
+table.are_equal = are_equal
 
 -- maybe also make a combined one
 
@@ -825,86 +871,126 @@ function table.contains(t, v)
 end
 
 function table.count(t)
-    local n, e = 0, next(t)
-    while e do
-        n, e = n + 1, next(t,e)
+    local n = 0
+    for k, v in next, t do
+        n = n + 1
     end
     return n
 end
 
-function table.swapped(t)
-    local s = { }
+function table.swapped(t,s) -- hash
+    local n = { }
+    if s then
+--~         for i=1,#s do
+--~             n[i] = s[i]
+--~         end
+        for k, v in next, s do
+            n[k] = v
+        end
+    end
+--~     for i=1,#t do
+--~         local ti = t[i] -- don't ask but t[i] can be nil
+--~         if ti then
+--~             n[ti] = i
+--~         end
+--~     end
     for k, v in next, t do
-        s[v] = k
+        n[v] = k
     end
-    return s
+    return n
 end
 
---~ function table.are_equal(a,b)
---~     return table.serialize(a) == table.serialize(b)
---~ end
-
-function table.clone(t,p) -- t is optional or nil or table
-    if not p then
-        t, p = { }, t or { }
-    elseif not t then
-        t = { }
+function table.reversed(t)
+    if t then
+        local tt, tn = { }, #t
+        if tn > 0 then
+            local ttn = 0
+            for i=tn,1,-1 do
+                ttn = ttn + 1
+                tt[ttn] = t[i]
+            end
+        end
+        return tt
     end
-    setmetatable(t, { __index = function(_,key) return p[key] end }) -- why not __index = p ?
-    return t
 end
 
-function table.hexed(t,seperator)
-    local tt = { }
-    for i=1,#t do tt[i] = format("0x%04X",t[i]) end
-    return concat(tt,seperator or " ")
-end
-
-function table.reverse_hash(h)
-    local r = { }
-    for k,v in next, h do
-        r[v] = lower(gsub(k," ",""))
+function table.sequenced(t,sep) -- hash only
+    if t then
+        local s, n = { }, 0
+        for k, v in sortedhash(t) do
+            if simple then
+                if v == true then
+                    n = n + 1
+                    s[n] = k
+                elseif v and v~= "" then
+                    n = n + 1
+                    s[n] = k .. "=" .. tostring(v)
+                end
+            else
+                n = n + 1
+                s[n] = k .. "=" .. tostring(v)
+            end
+        end
+        return concat(s, sep or " | ")
+    else
+        return ""
     end
-    return r
 end
 
-function table.reverse(t)
-    local tt = { }
-    if #t > 0 then
-        for i=#t,1,-1 do
-            tt[#tt+1] = t[i]
+function table.print(t,...)
+    if type(t) ~= "table" then
+        print(tostring(t))
+    else
+        table.tohandle(print,t,...)
+    end
+end
+
+-- -- -- obsolete but we keep them for a while and might comment them later -- -- --
+
+-- roughly: copy-loop : unpack : sub == 0.9 : 0.4 : 0.45 (so in critical apps, use unpack)
+
+function table.sub(t,i,j)
+    return { unpack(t,i,j) }
+end
+
+-- slower than #t on indexed tables (#t only returns the size of the numerically indexed slice)
+
+function table.is_empty(t)
+    return not t or not next(t)
+end
+
+function table.has_one_entry(t)
+    return t and not next(t,next(t))
+end
+
+-- new
+
+function table.loweredkeys(t) -- maybe utf
+    local l = { }
+    for k, v in next, t do
+        l[lower(k)] = v
+    end
+    return l
+end
+
+-- new, might move (maybe duplicate)
+
+function table.unique(old)
+    local hash = { }
+    local new = { }
+    local n = 0
+    for i=1,#old do
+        local oi = old[i]
+        if not hash[oi] then
+            n = n + 1
+            new[n] = oi
+            hash[oi] = true
         end
     end
-    return tt
+    return new
 end
 
-function table.insert_before_value(t,value,extra)
-    for i=1,#t do
-        if t[i] == extra then
-            remove(t,i)
-        end
-    end
-    for i=1,#t do
-        if t[i] == value then
-            insert(t,i,extra)
-            return
-        end
-    end
-    insert(t,1,extra)
-end
-
-function table.insert_after_value(t,value,extra)
-    for i=1,#t do
-        if t[i] == extra then
-            remove(t,i)
-        end
-    end
-    for i=1,#t do
-        if t[i] == value then
-            insert(t,i+1,extra)
-            return
-        end
-    end
-    insert(t,#t+1,extra)
-end
-
+-- function table.sorted(t,...)
+--     table.sort(t,...)
+--     return t -- still sorts in-place
+-- end
