@@ -47,6 +47,7 @@ Source files:
     lualibs-unicode.lua
     lualibs-url.lua
     lualibs-util-dim.lua
+    lualibs-util-jsn.lua
     lualibs-util-lua.lua
     lualibs-util-mrg.lua
     lualibs-util-sto.lua
