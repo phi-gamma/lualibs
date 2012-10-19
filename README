@@ -34,7 +34,6 @@ Source files:
     lualibs.dtx
     lualibs-aux.lua
     lualibs-boolean.lua
-    lualibs-dimen.lua
     lualibs-dir.lua
     lualibs-file.lua
     lualibs-io.lua
@@ -49,6 +48,7 @@ Source files:
     lualibs-unicode.lua
     lualibs-url.lua
     lualibs-utils.lua
+    lualibs-util-dim.lua
     README
     Makefile
     NEWS
