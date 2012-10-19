@@ -46,10 +46,11 @@ Source files:
     lualibs-table.lua
     lualibs-unicode.lua
     lualibs-url.lua
-    lualibs-util-lua.lua
-    lualibs-util-sto.lua
     lualibs-util-dim.lua
+    lualibs-util-lua.lua
     lualibs-util-mrg.lua
+    lualibs-util-sto.lua
+    lualibs-util-str.lua
     lualibs-util-tab.lua
     README
     Makefile
