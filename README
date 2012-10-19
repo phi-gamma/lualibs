@@ -46,6 +46,8 @@ Source files:
     lualibs-table.lua
     lualibs-unicode.lua
     lualibs-url.lua
+    lualibs-util-lua.lua
+    lualibs-util-sto.lua
     lualibs-util-dim.lua
     lualibs-util-mrg.lua
     lualibs-util-tab.lua
