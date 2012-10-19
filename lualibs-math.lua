@@ -28,14 +28,13 @@ end
 
 local pipi = 2*math.pi/360
 
-function math.sind(d)
-    return sin(d*pipi)
+if not math.sind then
+    function math.sind(d) return sin(d*pipi) end
+    function math.cosd(d) return cos(d*pipi) end
+    function math.tand(d) return tan(d*pipi) end
 end
 
-function math.cosd(d)
-    return cos(d*pipi)
-end
-
-function math.tand(d)
-    return tan(d*pipi)
+if not math.odd then
+    function math.odd (n) return n % 2 ~= 0 end
+    function math.even(n) return n % 2 == 0 end
 end
