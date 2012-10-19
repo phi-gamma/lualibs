@@ -1,4 +1,4 @@
-if not modules then modules = { } end modules ['l-dimen'] = {
+if not modules then modules = { } end modules ['util-dim'] = {
     version   = 1.001,
     comment   = "support for dimensions",
     author    = "Hans Hagen, PRAGMA-ADE, Hasselt NL",
