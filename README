@@ -47,7 +47,7 @@ Source files:
     lualibs-table.lua
     lualibs-unicode.lua
     lualibs-url.lua
-    lualibs-utils.lua
+    lualibs-util-mrg.lua
     lualibs-util-dim.lua
     README
     Makefile
