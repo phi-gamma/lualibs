@@ -14,6 +14,7 @@ local file = file
 local insert, concat = table.insert, table.concat
 local find, gmatch, match, gsub, sub, char, lower = string.find, string.gmatch, string.match, string.gsub, string.sub, string.char, string.lower
 local lpegmatch = lpeg.match
+local getcurrentdir, attributes = lfs.currentdir, lfs.attributes
 
 local P, R, S, C, Cs, Cp, Cc = lpeg.P, lpeg.R, lpeg.S, lpeg.C, lpeg.Cs, lpeg.Cp, lpeg.Cc
 
