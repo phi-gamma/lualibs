@@ -6,7 +6,7 @@ if not modules then modules = { } end modules ['util-sto'] = {
     license   = "see context related readme files"
 }
 
-local setmetatable, getmetatable = setmetatable, getmetatable
+local setmetatable, getmetatable, type = setmetatable, getmetatable, type
 
 utilities         = utilities or { }
 utilities.storage = utilities.storage or { }
@@ -14,8 +14,9 @@ local storage     = utilities.storage
 
 function storage.mark(t)
     if not t then
-        texio.write_nl("fatal error: storage cannot be marked")
-        return -- os.exit()
+        print("\nfatal error: storage cannot be marked\n")
+        os.exit()
+        return
     end
     local m = getmetatable(t)
     if not m then
@@ -44,36 +45,37 @@ end
 
 function storage.checked(t)
     if not t then
-        texio.write_nl("fatal error: storage has not been allocated")
-        return -- os.exit()
+        report("\nfatal error: storage has not been allocated\n")
+        os.exit()
+        return
     end
     return t
 end
 
---~ function utilities.storage.delay(parent,name,filename)
---~     local m = getmetatable(parent)
---~     m.__list[name] = filename
---~ end
---~
---~ function utilities.storage.predefine(parent)
---~     local list = { }
---~     local m = getmetatable(parent) or {
---~         __list = list,
---~         __index = function(t,k)
---~             local l = require(list[k])
---~             t[k] = l
---~             return l
---~         end
---~     }
---~     setmetatable(parent,m)
---~ end
---~
---~ bla = { }
---~ utilities.storage.predefine(bla)
---~ utilities.storage.delay(bla,"test","oepsoeps")
---~ local t = bla.test
---~ table.print(t)
---~ print(t.a)
+-- function utilities.storage.delay(parent,name,filename)
+--     local m = getmetatable(parent)
+--     m.__list[name] = filename
+-- end
+--
+-- function utilities.storage.predefine(parent)
+--     local list = { }
+--     local m = getmetatable(parent) or {
+--         __list = list,
+--         __index = function(t,k)
+--             local l = require(list[k])
+--             t[k] = l
+--             return l
+--         end
+--     }
+--     setmetatable(parent,m)
+-- end
+--
+-- bla = { }
+-- utilities.storage.predefine(bla)
+-- utilities.storage.delay(bla,"test","oepsoeps")
+-- local t = bla.test
+-- table.print(t)
+-- print(t.a)
 
 function storage.setinitializer(data,initialize)
     local m = getmetatable(data) or { }
@@ -98,21 +100,28 @@ end
 
 -- table namespace ?
 
-local function f_empty ()             return "" end -- t,k
-local function f_self  (t,k) t[k] = k return k  end
-local function f_ignore()                       end -- t,k,v
+local function f_empty ()                           return "" end -- t,k
+local function f_self  (t,k) t[k] = k               return k  end
+local function f_table (t,k) local v = { } t[k] = v return v  end
+local function f_ignore()                                     end -- t,k,v
 
 local t_empty  = { __index    = f_empty  }
 local t_self   = { __index    = f_self   }
+local t_table  = { __index    = f_table  }
 local t_ignore = { __newindex = f_ignore }
 
 function table.setmetatableindex(t,f)
+    if type(t) ~= "table" then
+        f, t = t, { }
+    end
     local m = getmetatable(t)
     if m then
         if f == "empty" then
             m.__index = f_empty
         elseif f == "key" then
             m.__index = f_self
+        elseif f == "table" then
+            m.__index = f_table
         else
             m.__index = f
         end
@@ -121,6 +130,8 @@ function table.setmetatableindex(t,f)
             setmetatable(t, t_empty)
         elseif f == "key" then
             setmetatable(t, t_self)
+        elseif f == "table" then
+            setmetatable(t, t_table)
         else
             setmetatable(t,{ __index = f })
         end
@@ -129,6 +140,9 @@ function table.setmetatableindex(t,f)
 end
 
 function table.setmetatablenewindex(t,f)
+    if type(t) ~= "table" then
+        f, t = t, { }
+    end
     local m = getmetatable(t)
     if m then
         if f == "ignore" then
@@ -147,6 +161,9 @@ function table.setmetatablenewindex(t,f)
 end
 
 function table.setmetatablecall(t,f)
+    if type(t) ~= "table" then
+        f, t = t, { }
+    end
     local m = getmetatable(t)
     if m then
         m.__call = f
