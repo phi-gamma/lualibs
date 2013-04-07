@@ -155,7 +155,7 @@ and the derived file lualibs.lua.
 %
 % The \textsf{lualibs} bundle contains files from two Con\TeX t Lua
 % library categories: The generic auxiliary functions (original file prefix:
-% |t-|) together form something close to a standard libary. Most of these are
+% |l-|) together form something close to a standard libary. Most of these are
 % extensions of an existing namespace, like for instance |l-table.lua| which
 % adds full-fledged serialization capabilities to the Lua table library.
 % They were imported under the \textsf{lualibs}-prefix.
@@ -165,22 +165,24 @@ and the derived file lualibs.lua.
 %  \centering
 %  \caption{Extensions of the Lua standard library.}
 %  \begin{tabular}{l l l}
-%   \textsf{lualibs} name & Con\TeX t name & content                   \\
+%   \textsf{lualibs} name & Con\TeX t name & content                        \\
 %   \hline
-%   lualibs-string.lua    & l-string.lua   & string manipulation       \\
-%   lualibs-lpeg.lua      & l-lpeg.lua     & patterns                  \\
-%   lualibs-boolean.lua   & l-boolean.lua  & boolean converter         \\
-%   lualibs-number.lua    & l-number.lua   & bit set                   \\
-%   lualibs-math.lua      & l-math.lua     & math functions            \\
-%   lualibs-table.lua     & l-table.lua    & serialization, conversion \\
-%   lualibs-io.lua        & l-io.lua       & reading and writing files \\
-%   lualibs-os.lua        & l-os.lua       & platform specific code    \\
-%   lualibs-file.lua      & l-file.lua     & filesystem operations     \\
-%   lualibs-md5.lua       & l-md5.lua      & checksum functions        \\
-%   lualibs-dir.lua       & l-dir.lua      & directory handling        \\
-%   lualibs-unicode.lua   & l-unicode.lua  & utf and unicode           \\
-%   lualibs-url.lua       & l-url.lua      & url handling              \\
-%   lualibs-set.lua       & l-set.lua      & sets                      \\
+%   lualibs-lua.lua       & l-lua.lua      & compatibility, library paths   \\
+%   lualibs-lpeg.lua      & l-lpeg.lua     & patterns                       \\
+%   lualibs-function.lua  & l-function.lua & empty except for dummy         \\
+%   lualibs-string.lua    & l-string.lua   & string manipulation            \\
+%   lualibs-table.lua     & l-table.lua    & serialization, conversion      \\
+%   lualibs-boolean.lua   & l-boolean.lua  & boolean converter              \\
+%   lualibs-number.lua    & l-number.lua   & bit operations                 \\
+%   lualibs-math.lua      & l-math.lua     & math functions                 \\
+%   lualibs-io.lua        & l-io.lua       & reading and writing files      \\
+%   lualibs-os.lua        & l-os.lua       & platform specific code         \\
+%   lualibs-file.lua      & l-file.lua     & filesystem operations          \\
+%   lualibs-md5.lua       & l-md5.lua      & checksum functions             \\
+%   lualibs-dir.lua       & l-dir.lua      & directory handling             \\
+%   lualibs-unicode.lua   & l-unicode.lua  & utf and unicode                \\
+%   lualibs-url.lua       & l-url.lua      & url handling                   \\
+%   lualibs-set.lua       & l-set.lua      & sets                           \\
 %  \end{tabular}
 %  \label{tab:extensions}
 % \end{table}
@@ -234,12 +236,14 @@ end
 % Load the modules.
 %
 %    \begin{macrocode}
-require("lualibs-string")
+require("lualibs-lua")
 require("lualibs-lpeg")
+require("lualibs-function")
+require("lualibs-string")
+require("lualibs-table")
 require("lualibs-boolean")
 require("lualibs-number")
 require("lualibs-math")
-require("lualibs-table")
 require("lualibs-io")
 require("lualibs-os")
 require("lualibs-file")
@@ -248,6 +252,7 @@ require("lualibs-dir")
 require("lualibs-unicode")
 require("lualibs-url")
 require("lualibs-set")
+
 require("lualibs-util-lua")
 require("lualibs-util-sto")
 require("lualibs-util-mrg")
