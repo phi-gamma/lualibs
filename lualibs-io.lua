@@ -9,6 +9,7 @@ if not modules then modules = { } end modules ['l-io'] = {
 local io = io
 local byte, find, gsub, format = string.byte, string.find, string.gsub, string.format
 local concat = table.concat
+local floor = math.floor
 local type = type
 
 if string.find(os.getenv("PATH"),";") then
@@ -17,10 +18,49 @@ else
     io.fileseparator, io.pathseparator = "/" , ":"
 end
 
+local function readall(f)
+    return f:read("*all")
+end
+
+-- The next one is upto 50% faster on large files and less memory consumption due
+-- to less intermediate large allocations. This phenomena was discussed on the
+-- luatex dev list.
+
+local function readall(f)
+    local size = f:seek("end")
+    if size == 0 then
+        return ""
+    elseif size < 1024*1024 then
+        f:seek("set",0)
+        return f:read('*all')
+    else
+        local done = f:seek("set",0)
+        if size < 1024*1024 then
+            step = 1024 * 1024
+        elseif size > 16*1024*1024 then
+            step = 16*1024*1024
+        else
+            step = floor(size/(1024*1024)) * 1024 * 1024 / 8
+        end
+        local data = { }
+        while true do
+            local r = f:read(step)
+            if not r then
+                return concat(data)
+            else
+                data[#data+1] = r
+            end
+        end
+    end
+end
+
+io.readall = readall
+
 function io.loaddata(filename,textmode) -- return nil if empty
     local f = io.open(filename,(textmode and 'r') or 'rb')
     if f then
-        local data = f:read('*all')
+--       local data = f:read('*all')
+        local data = readall(f)
         f:close()
         if #data > 0 then
             return data
@@ -46,30 +86,32 @@ function io.savedata(filename,data,joiner)
     end
 end
 
+-- we can also chunk this one if needed: io.lines(filename,chunksize,"*l")
+
 function io.loadlines(filename,n) -- return nil if empty
     local f = io.open(filename,'r')
-    if f then
-        if n then
-            local lines = { }
-            for i=1,n do
-                local line = f:read("*lines")
-                if line then
-                    lines[#lines+1] = line
-                else
-                    break
-                end
+    if not f then
+        -- no file
+    elseif n then
+        local lines = { }
+        for i=1,n do
+            local line = f:read("*lines")
+            if line then
+                lines[#lines+1] = line
+            else
+                break
             end
-            f:close()
-            lines = concat(lines,"\n")
-            if #lines > 0 then
-                return lines
-            end
-        else
-            local line = f:read("*line") or ""
-            assert(f:close())
-            if #line > 0 then
-                return line
-            end
+        end
+        f:close()
+        lines = concat(lines,"\n")
+        if #lines > 0 then
+            return lines
+        end
+    else
+        local line = f:read("*line") or ""
+        f:close()
+        if #line > 0 then
+            return line
         end
     end
 end
@@ -90,7 +132,7 @@ function io.exists(filename)
     if f == nil then
         return false
     else
-        assert(f:close())
+        f:close()
         return true
     end
 end
@@ -101,7 +143,7 @@ function io.size(filename)
         return 0
     else
         local s = f:seek("end")
-        assert(f:close())
+        f:close()
         return s
     end
 end
@@ -109,9 +151,13 @@ end
 function io.noflines(f)
     if type(f) == "string" then
         local f = io.open(filename)
-        local n = f and io.noflines(f) or 0
-        assert(f:close())
-        return n
+        if f then
+            local n = f and io.noflines(f) or 0
+            f:close()
+            return n
+        else
+            return 0
+        end
     else
         local n = 0
         for _ in f:lines() do
@@ -288,7 +334,7 @@ function io.readstring(f,n,m)
         f:seek("set",n)
         n = m
     end
-    local str = gsub(f:read(n),"%z","")
+    local str = gsub(f:read(n),"\000","")
     return str
 end
 
@@ -296,3 +342,21 @@ end
 
 if not io.i_limiter then function io.i_limiter() end end -- dummy so we can test safely
 if not io.o_limiter then function io.o_limiter() end end -- dummy so we can test safely
+
+-- This works quite ok:
+--
+-- function io.piped(command,writer)
+--     local pipe = io.popen(command)
+--  -- for line in pipe:lines() do
+--  --     print(line)
+--  -- end
+--     while true do
+--         local line = pipe:read(1)
+--         if not line then
+--             break
+--         elseif line ~= "\n" then
+--             writer(line)
+--         end
+--     end
+--     return pipe:close() -- ok, status, (error)code
+-- end
