@@ -12,12 +12,16 @@ local gsub, format = string.gsub, string.format
 local concat = table.concat
 local type, next = type, next
 
-utilities             = utilities or {}
+local P, R, S, V, Ct, C, Cs, Cc, Cp, Cmt, Cb, Cg = lpeg.P, lpeg.R, lpeg.S, lpeg.V, lpeg.Ct, lpeg.C, lpeg.Cs, lpeg.Cc, lpeg.Cp, lpeg.Cmt, lpeg.Cb, lpeg.Cg
+local lpegmatch, patterns = lpeg.match, lpeg.patterns
+
+utilities             = utilities or { }
 local merger          = utilities.merger or { }
 utilities.merger      = merger
-utilities.report      = logs and logs.reporter("system") or print
-
 merger.strip_comment  = true
+
+local report          = logs.reporter("system","merge")
+utilities.report      = report
 
 local m_begin_merge   = "begin library merge"
 local m_end_merge     = "end library merge"
@@ -41,6 +45,15 @@ local m_faked =
     "-- " .. m_begin_merge .. "\n\n" ..
     "-- " .. m_end_merge .. "\n\n"
 
+local m_report = [[
+-- used libraries    : %s
+-- skipped libraries : %s
+-- original bytes    : %s
+-- stripped bytes    : %s
+]]
+
+local m_preloaded = [[package.loaded[%q] = package.loaded[%q] or true]]
+
 local function self_fake()
     return m_faked
 end
@@ -52,25 +65,87 @@ end
 local function self_load(name)
     local data = io.loaddata(name) or ""
     if data == "" then
-        utilities.report("merge: unknown file %s",name)
+        report("unknown file %a",name)
     else
-        utilities.report("merge: inserting %s",name)
+        report("inserting file %a",name)
     end
     return data or ""
 end
 
+-- -- saves some 20K .. scite comments
+-- data = gsub(data,"%-%-~[^\n\r]*[\r\n]","")
+-- -- saves some 20K .. ldx comments
+-- data = gsub(data,"%-%-%[%[ldx%-%-.-%-%-ldx%]%]%-%-","")
+
+local space      = patterns.space
+local eol        = patterns.newline
+local equals     = P("=")^0
+local open       = P("[") * Cg(equals,"init") * P("[") * P("\n")^-1
+local close      = P("]") * C(equals) * P("]")
+local closeeq    = Cmt(close * Cb("init"), function(s,i,a,b) return a == b end)
+local longstring = open * (1 - closeeq)^0 * close
+
+local quoted     = patterns.quoted
+local emptyline  = space^0 * eol
+local operator1  = P("<=") + P(">=") + P("~=") + P("..") + S("/^<>=*+%%")
+local operator2  = S("*+/")
+local operator3  = S("-")
+local separator  = S(",;")
+
+local ignore  = (P("]") * space^1 * P("=") * space^1 * P("]")) / "]=[" +
+                (P("=") * space^1 * P("{")) / "={" +
+                (P("(") * space^1) / "(" +
+                (P("{") * (space+eol)^1 * P("}")) / "{}"
+local strings = quoted --  / function (s) print("<<"..s..">>") return s end
+local longcmt = (emptyline^0 * P("--") * longstring * emptyline^0) / ""
+local longstr = longstring
+local comment = emptyline^0 * P("--") * P("-")^0 * (1-eol)^0 * emptyline^1 / "\n"
+local pack    = ((eol+space)^0 / "") * operator1 * ((eol+space)^0 / "") +
+                ((eol+space)^0 / "") * operator2 * ((space)^0 / "") +
+                ((eol+space)^1 / "") * operator3 * ((space)^1 / "") +
+                ((space)^0 / "") * separator * ((space)^0 / "")
+local lines   = emptyline^2 / "\n"
+local spaces  = (space * space) / " "
+----- spaces  = ((space+eol)^1 ) / " "
+
+local compact = Cs ( (
+    ignore  +
+    strings +
+    longcmt +
+    longstr +
+    comment +
+    pack    +
+    lines   +
+    spaces  +
+    1
+)^1 )
+
+local strip       = Cs((emptyline^2/"\n" + 1)^0)
+local stripreturn = Cs((1-P("return") * space^1 * P(1-space-eol)^1 * (space+eol)^0 * P(-1))^1)
+
+function merger.compact(data)
+    return lpegmatch(strip,lpegmatch(compact,data))
+end
+
+local function self_compact(data)
+    local delta = 0
+    if merger.strip_comment then
+        local before = #data
+        data = lpegmatch(compact,data)
+        data = lpegmatch(strip,data) -- also strips in longstrings ... alas
+     -- data = string.strip(data)
+        local after = #data
+        delta = before - after
+        report("original size %s, compacted to %s, stripped %s",before,after,delta)
+        data = format("-- original size: %s, stripped down to: %s\n\n%s",before,after,data)
+    end
+    return lpegmatch(stripreturn,data) or data, delta
+end
+
 local function self_save(name, data)
     if data ~= "" then
-        if merger.strip_comment then
-            local n = #data
-            -- saves some 20K .. scite comments
-            data = gsub(data,"%-%-~[^\n\r]*[\r\n]","")
-            -- saves some 20K .. ldx comments
-            data = gsub(data,"%-%-%[%[ldx%-%-.-%-%-ldx%]%]%-%-","")
-            utilities.report("merge: %s bytes of comment stripped, %s bytes of code left",n-#data,#data)
-        end
         io.savedata(name,data)
-        utilities.report("merge: saving %s",name)
+        report("saving %s with size %s",name,#data)
     end
 end
 
@@ -87,7 +162,7 @@ local function self_libs(libs,list)
         local lib = libs[i]
         for j=1,#list do
             local pth = gsub(list[j],"\\","/") -- file.clean_path
-            utilities.report("merge: checking library path %s",pth)
+            report("checking library path %a",pth)
             local name = pth .. "/" .. lib
             if lfs.isfile(name) then
                 foundpath = pth
@@ -96,30 +171,37 @@ local function self_libs(libs,list)
         if foundpath then break end
     end
     if foundpath then
-        utilities.report("merge: using library path %s",foundpath)
-        local right, wrong = { }, { }
+        report("using library path %a",foundpath)
+        local right, wrong, original, stripped = { }, { }, 0, 0
         for i=1,#libs do
             local lib = libs[i]
             local fullname = foundpath .. "/" .. lib
             if lfs.isfile(fullname) then
-                utilities.report("merge: using library %s",fullname)
+                report("using library %a",fullname)
+                local preloaded = file.nameonly(lib)
+                local data = io.loaddata(fullname,true)
+                original = original + #data
+                local data, delta = self_compact(data)
                 right[#right+1] = lib
                 result[#result+1] = m_begin_closure
-                result[#result+1] = io.loaddata(fullname,true)
+                result[#result+1] = format(m_preloaded,preloaded,preloaded)
+                result[#result+1] = data
                 result[#result+1] = m_end_closure
+                stripped = stripped + delta
             else
-                utilities.report("merge: skipping library %s",fullname)
+                report("skipping library %a",fullname)
                 wrong[#wrong+1] = lib
             end
         end
-        if #right > 0 then
-            utilities.report("merge: used libraries: %s",concat(right," "))
-        end
-        if #wrong > 0 then
-            utilities.report("merge: skipped libraries: %s",concat(wrong," "))
-        end
+        right = #right > 0 and concat(right," ") or "-"
+        wrong = #wrong > 0 and concat(wrong," ") or "-"
+        report("used libraries: %a",right)
+        report("skipped libraries: %a",wrong)
+        report("original bytes: %a",original)
+        report("stripped bytes: %a",stripped)
+        result[#result+1] = format(m_report,right,wrong,original,stripped)
     else
-        utilities.report("merge: no valid library path found")
+        report("no valid library path found")
     end
     return concat(result, "\n\n")
 end
