@@ -8,7 +8,7 @@ if not modules then modules = { } end modules ['l-dir'] = {
 
 -- dir.expandname will be merged with cleanpath and collapsepath
 
-local type = type
+local type, select = type, select
 local find, gmatch, match, gsub = string.find, string.gmatch, string.match, string.gsub
 local concat, insert, remove = table.concat, table.insert, table.remove
 local lpegmatch = lpeg.match
@@ -24,6 +24,7 @@ local walkdir    = lfs.dir
 local isdir      = lfs.isdir
 local isfile     = lfs.isfile
 local currentdir = lfs.currentdir
+local chdir      = lfs.chdir
 
 -- in case we load outside luatex
 
@@ -261,15 +262,15 @@ local onwindows = os.type == "windows" or find(os.getenv("PATH"),";")
 if onwindows then
 
     function dir.mkdirs(...)
-        local str, pth, t = "", "", { ... }
-        for i=1,#t do
-            local s = t[i]
-            if s ~= "" then
-                if str ~= "" then
-                    str = str .. "/" .. s
-                else
-                    str = s
-                end
+        local str, pth = "", ""
+        for i=1,select("#",...) do
+            local s = select(i,...)
+            if s == "" then
+                -- skip
+            elseif str == "" then
+                str = s
+            else
+                str = str .. "/" .. s
             end
         end
         local first, middle, last
@@ -329,9 +330,9 @@ if onwindows then
 else
 
     function dir.mkdirs(...)
-        local str, pth, t = "", "", { ... }
-        for i=1,#t do
-            local s = t[i]
+        local str, pth = "", ""
+        for i=1,select("#",...) do
+            local s = select(i,...)
             if s and s ~= "" then -- we catch nil and false
                 if str ~= "" then
                     str = str .. "/" .. s
@@ -385,7 +386,7 @@ if onwindows then
     function dir.expandname(str) -- will be merged with cleanpath and collapsepath
         local first, nothing, last = match(str,"^(//)(//*)(.*)$")
         if first then
-            first = dir.current() .. "/"
+            first = dir.current() .. "/" -- dir.current sanitizes
         end
         if not first then
             first, last = match(str,"^(//)/*(.*)$")
@@ -394,10 +395,10 @@ if onwindows then
             first, last = match(str,"^([a-zA-Z]:)(.*)$")
             if first and not find(last,"^/") then
                 local d = currentdir()
-                if lfs.chdir(first) then
+                if chdir(first) then
                     first = dir.current()
                 end
-                lfs.chdir(d)
+                chdir(d)
             end
         end
         if not first then
@@ -433,13 +434,16 @@ file.expandname = dir.expandname -- for convenience
 local stack = { }
 
 function dir.push(newdir)
-    insert(stack,lfs.currentdir())
+    insert(stack,currentdir())
+    if newdir and newdir ~= "" then
+        chdir(newdir)
+    end
 end
 
 function dir.pop()
     local d = remove(stack)
     if d then
-        lfs.chdir(d)
+        chdir(d)
     end
     return d
 end
