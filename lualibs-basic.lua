@@ -1,30 +1,19 @@
--- 
---  This is file `lualibs.lua',
---  generated with the docstrip utility.
--- 
---  The original source files were:
--- 
---  lualibs.dtx  (with options: `lua')
---  This is a generated file.
---  
---  Copyright (C) 2009 by PRAGMA ADE / ConTeXt Development Team
---  
---  See ConTeXt's mreadme.pdf for the license.
---  
---  This work consists of the main source file lualibs.dtx
---  and the derived file lualibs.lua.
---  
+--  This is file `lualibs-basic.lua',
 module('lualibs-basic', package.seeall)
 
-local lualibs_module = {
-    name          = "lualibs-basic",
-    version       = 1.01,
-    date          = "2013/04/10",
-    description   = "Basic Lua extensions, meta package.",
-    author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux",
-    copyright     = "PRAGMA ADE / ConTeXt Development Team",
-    license       = "See ConTeXt's mreadme.pdf for the license",
+local lualibs_basic_module = {
+  name          = "lualibs-basic",
+  version       = 1.01,
+  date          = "2013/04/10",
+  description   = "Basic Lua extensions, meta package.",
+  author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux",
+  copyright     = "PRAGMA ADE / ConTeXt Development Team",
+  license       = "See ConTeXt's mreadme.pdf for the license",
 }
+
+if luatexbase and luatexbase.provides_module then
+  local _,_,_ = luatexbase.provides_module(lualibs_module)
+end
 
 local loadmodule = lualibs.loadmodule
 
@@ -50,5 +39,5 @@ loadmodule("lualibs-set.lua")
 --l-xml.lua
 
 
-
+-- vim:tw=71:sw=2:ts=2:expandtab
 --  End of File `lualibs.lua'.

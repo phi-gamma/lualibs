@@ -1,30 +1,17 @@
--- 
 --  This is file `lualibs.lua',
---  generated with the docstrip utility.
--- 
---  The original source files were:
--- 
---  lualibs.dtx  (with options: `lua')
---  This is a generated file.
---  
---  Copyright (C) 2009 by PRAGMA ADE / ConTeXt Development Team
---  
---  See ConTeXt's mreadme.pdf for the license.
---  
---  This work consists of the main source file lualibs.dtx
---  and the derived file lualibs.lua.
---  
 module('lualibs', package.seeall)
 
 local lualibs_module = {
-    name          = "lualibs",
-    version       = 1.01,
-    date          = "2013/04/10",
-    description   = "Lua additional functions.",
-    author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux",
-    copyright     = "PRAGMA ADE / ConTeXt Development Team",
-    license       = "See ConTeXt's mreadme.pdf for the license",
+  name          = "lualibs",
+  version       = 1.01,
+  date          = "2013/04/10",
+  description   = "Lua additional functions.",
+  author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux",
+  copyright     = "PRAGMA ADE / ConTeXt Development Team",
+  license       = "See ConTeXt's mreadme.pdf for the license",
 }
+
+local prefer_merged = true -- | false --- TODO should be set in some global config
 
 local lpeg, kpse = lpeg, kpse
 
@@ -68,8 +55,13 @@ local loadmerged = function (basename)
   if not lpegmatch(p_hassuffix, basename) then -- force .lua suffix
     basename = basename .. ".lua"
   end
-  local mergedname = lpegmatch(p_stripsuffix, basename) .. merged_suffix
-  local res = loadmodule(mergedname, "merged package")
+  local res
+  if prefer_merged then
+    local mergedname = lpegmatch(p_stripsuffix, basename) .. merged_suffix
+    res = loadmodule(mergedname, "merged package")
+  else
+    info"Ignoring merged packages."
+  end
   if not res then -- package not present, load individual libs
     info(stringformat("Falling back to “%s”.", basename))
     res = loadmodule(basename, "metapackage")
@@ -87,4 +79,4 @@ loadmerged"extended.lua"
 io.write"\n"
 -- 
 -- vim:tw=71:sw=2:ts=2:expandtab
---  End of File `lualibs.lua'.
+--  End of File `lualibs-basic.lua'.
