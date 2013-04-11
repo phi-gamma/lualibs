@@ -80,11 +80,5 @@ loadmerged"basic.lua"
 --inspect(table.keys(string))
 loadmerged"extended.lua"
 
---- merge generates wrong syntax for this one, so we load it separately
---- http://www.ntg.nl/pipermail/ntg-context/2013/072336.html
---loadmodule"util-dim"
-
-io.write"\n"
--- 
 -- vim:tw=71:sw=2:ts=2:expandtab
 --  End of File `lualibs-basic.lua'.
