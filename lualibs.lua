@@ -32,7 +32,7 @@ else
   find_file = kpse.find_file
 end
 
-loadmodule = _ENV.loadmodule or function (name, t)
+loadmodule = _G.loadmodule or function (name, t)
   if not t then t = "library" end
   local filepath  = kpse.find_file(name, "lua")
   if not filepath or filepath == "" then
@@ -71,10 +71,18 @@ local loadmerged = function (basename)
   end
 end
 
+--[[doc--
+The separation of the “basic” from the “extended” sets coincides with
+the split into luat-bas.mkiv and luat-lib.mkiv.
+--doc]]--
 loadmerged"basic.lua"
 --inspect(table.keys(table))
 --inspect(table.keys(string))
 loadmerged"extended.lua"
+
+--- merge generates wrong syntax for this one, so we load it separately
+--- http://www.ntg.nl/pipermail/ntg-context/2013/072336.html
+--loadmodule"util-dim"
 
 io.write"\n"
 -- 
