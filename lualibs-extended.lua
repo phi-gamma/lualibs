@@ -21,17 +21,17 @@ end
 
 local loadmodule = lualibs.loadmodule
 
-loadmodule("lualibs-util-str")
-loadmodule("lualibs-util-tab")
-loadmodule("lualibs-util-sto")
-----------("lualibs-util-pck")--- packers; necessary?
-----------("lualibs-util-seq")--- sequencers (function chaining)
-----------("lualibs-util-mrg")--- only relevant in mtx-package
-loadmodule("lualibs-util-prs")--- miscellaneous parsers; cool. cool cool cool
-----------("lualibs-util-fmt")--- column formtatter (rarely used)
-loadmodule("lualibs-util-dim")
-loadmodule("lualibs-util-jsn")
+loadmodule("lualibs-util-str.lua")
+loadmodule("lualibs-util-tab.lua")
+loadmodule("lualibs-util-sto.lua")
+----------("lualibs-util-pck.lua")--- packers; necessary?
+----------("lualibs-util-seq.lua")--- sequencers (function chaining)
+----------("lualibs-util-mrg.lua")--- only relevant in mtx-package
+loadmodule("lualibs-util-prs.lua")--- miscellaneous parsers; cool. cool cool cool
+----------("lualibs-util-fmt.lua")--- column formtatter (rarely used)
+loadmodule("lualibs-util-dim.lua")
+loadmodule("lualibs-util-jsn.lua")
 
---loadmodule("lualibs-util-lua")--- operations on lua bytecode
+----------("lualibs-util-lua.lua")--- operations on lua bytecode
 -- 
 --  End of File `lualibs-extended.lua'.
