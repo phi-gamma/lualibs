@@ -29,7 +29,6 @@ else
   mklog = function (t)
     local prefix = stringformat("[%s] ", t)
     return function (...)
-      print(...)
       texiowrite_nl(prefix)
       texiowrite   (stringformat(...))
     end
@@ -49,22 +48,50 @@ least the function \verb|logs.reporter|.
 For now it’s sufficient to make it a reference to \verb|mklog| as
 defined above.
 --doc]]--
-local log_backup
-local switch_logger = function ( )
-  if _G.logs then
-    log_backup = _G.logs
-  end
-  _G.logs    = {
+
+local dummy_function = function ( ) end
+local newline        = function ( ) texiowrite_nl"" end
+
+local fake_logs = function (name)
+  return {
+    name     = name,
+    enable   = dummy_function,
+    disable  = dummy_function,
     reporter = mklog,
-    newline  = function ( ) texiowrite_nl"" end,
+    newline  = newline
   }
+end
+
+local fake_trackers = function (name)
+  return {
+    name     = name,
+    enable   = dummy_function,
+    disable  = dummy_function,
+    register = mklog,
+    newline  = newline,
+  }
+end
+
+local backup_store
+local fake_context = function ( )
+  if not backup_store then
+    backup_store = utilities.storage.allocate()
+  end
+  if _G.logs     then backup_store.logs     = _G.logs     end
+  if _G.trackers then backup_store.trackers = _G.trackers end
+  _G.logs     = fake_logs"logs"
+  _G.trackers = fake_trackers"trackers"
 end
 
 --[[doc--
 Restore a backed up logger if appropriate.
 --doc]]--
-local restore_logger = function ( )
-  if log_backup then _G.logs = log_backup end
+local unfake_context = function ( )
+  if backup_store then
+    local bl, bt = backup_store.logs, backup_store.trackers
+    if bl then _G.logs     = bl end
+    if bt then _G.trackers = bt end
+  end
 end
 
 local loadmodule = lualibs.loadmodule
@@ -81,13 +108,15 @@ loadmodule("lualibs-util-dim.lua")--- conversions between dimensions
 loadmodule("lualibs-util-jsn.lua")--- JSON parser
 
 
-switch_logger()
+fake_context()
 ----------("lualibs-trac-set.lua")---!generalization of trackers
 ----------("lualibs-trac-log.lua")---!logging
 loadmodule("lualibs-trac-inf.lua")--- timing/statistics
 loadmodule("lualibs-util-lua.lua")--- operations on lua bytecode
+loadmodule("lualibs-util-deb.lua")--- extra debugging
+loadmodule("lualibs-util-tpl.lua")--- templating
 
-restore_logger()
+unfake_context() --- TODO check if this works at runtime
 
 -- vim:tw=71:sw=2:ts=2:expandtab
 --  End of File `lualibs-extended.lua'.
