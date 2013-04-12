@@ -109,12 +109,17 @@ loadmodule("lualibs-util-jsn.lua")--- JSON parser
 
 
 fake_context()
+
 ----------("lualibs-trac-set.lua")---!generalization of trackers
 ----------("lualibs-trac-log.lua")---!logging
 loadmodule("lualibs-trac-inf.lua")--- timing/statistics
 loadmodule("lualibs-util-lua.lua")--- operations on lua bytecode
 loadmodule("lualibs-util-deb.lua")--- extra debugging
 loadmodule("lualibs-util-tpl.lua")--- templating
+loadmodule("lualibs-util-sta.lua")--- stacker (for writing pdf)
+-------------------------------------!data-* -- Context specific
+----------("lualibs-util-lib.lua")---!swiglib; there is a luatex-swiglib
+loadmodule("lualibs-util-env.lua")--- environment arguments
 
 unfake_context() --- TODO check if this works at runtime
 
