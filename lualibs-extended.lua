@@ -15,19 +15,21 @@ local lualibs_basic_module = {
 Here we define some functions that fake the elaborate logging/tracking
 mechanism Context provides.
 --doc]]--
-local error, logger
+local error, logger, mklog
 if luatexbase and luatexbase.provides_module then
   --- TODO test how those work out when running tex
   local __error,_,_,__logger = luatexbase.provides_module(lualibs_module)
   error  = __error
   logger = __logger
+  mklog = function ( ) return logger end
 else
   local texiowrite    = texio.write
   local texiowrite_nl = texio.write_nl
   local stringformat  = string.format
-  local mklog = function (t)
+  mklog = function (t)
     local prefix = stringformat("[%s] ", t)
     return function (...)
+      print(...)
       texiowrite_nl(prefix)
       texiowrite   (stringformat(...))
     end
@@ -39,6 +41,13 @@ end
 --[[doc--
 We temporarily put our own global table in place and restore whatever
 we overloaded afterwards.
+
+\CONTEXT\ modules each have a custom logging mechanism that can be
+enabled for debugging.
+In order to fake the presence of this facility we need to define at
+least the function \verb|logs.reporter|.
+For now it’s sufficient to make it a reference to \verb|mklog| as
+defined above.
 --doc]]--
 local log_backup
 local switch_logger = function ( )
@@ -46,7 +55,7 @@ local switch_logger = function ( )
     log_backup = _G.logs
   end
   _G.logs    = {
-    reporter = logger,
+    reporter = mklog,
     newline  = function ( ) texiowrite_nl"" end,
   }
 end
@@ -73,7 +82,6 @@ loadmodule("lualibs-util-jsn.lua")--- JSON parser
 
 
 switch_logger()
-
 ----------("lualibs-trac-set.lua")---!generalization of trackers
 ----------("lualibs-trac-log.lua")---!logging
 loadmodule("lualibs-trac-inf.lua")--- timing/statistics
