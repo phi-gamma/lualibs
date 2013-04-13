@@ -11,7 +11,16 @@ local lualibs_module = {
   license       = "See ConTeXt's mreadme.pdf for the license",
 }
 
-local prefer_merged = true -- | false --- TODO should be set in some global config
+--- TODO should be set in some global config
+local prefer_merged = true ---false
+local load_extended = true ---false
+
+if config and config.lualibs then
+  local cl_prefer_merged = config.lualibs.prefer_merged
+  local cl_load_extended = config.lualibs.load_extended
+  if cl_prefer_merged ~= nil then prefer_merged = cl_prefer_merged end
+  if cl_load_extended ~= nil then load_extended = cl_load_extended end
+end
 
 local lpeg, kpse = lpeg, kpse
 
@@ -78,7 +87,9 @@ the split into luat-bas.mkiv and luat-lib.mkiv.
 loadmerged"basic.lua"
 --inspect(table.keys(table))
 --inspect(table.keys(string))
-loadmerged"extended.lua"
+if load_extended then
+  loadmerged"extended.lua"
+end
 
 -- vim:tw=71:sw=2:ts=2:expandtab
 --  End of File `lualibs-basic.lua'.
