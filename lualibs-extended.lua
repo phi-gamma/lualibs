@@ -1,7 +1,7 @@
 --  This is file `lualibs-extended.lua',
 module('lualibs-extended', package.seeall)
 
-local lualibs_basic_module = {
+local lualibs_extended_module = {
   name          = "lualibs-extended",
   version       = 1.01,
   date          = "2013/04/10",
@@ -18,7 +18,8 @@ mechanism Context provides.
 local error, logger, mklog
 if luatexbase and luatexbase.provides_module then
   --- TODO test how those work out when running tex
-  local __error,_,_,__logger = luatexbase.provides_module(lualibs_module)
+  local __error,_,_,__logger =
+    luatexbase.provides_module(lualibs_extended_module)
   error  = __error
   logger = __logger
   mklog = function ( ) return logger end
@@ -120,6 +121,8 @@ loadmodule("lualibs-util-sta.lua")--- stacker (for writing pdf)
 -------------------------------------!data-* -- Context specific
 ----------("lualibs-util-lib.lua")---!swiglib; there is a luatex-swiglib
 loadmodule("lualibs-util-env.lua")--- environment arguments
+----------("lualibs-mult-ini.lua")---
+----------("lualibs-core-con.lua")---
 
 unfake_context() --- TODO check if this works at runtime
 

@@ -12,7 +12,7 @@ local lualibs_basic_module = {
 }
 
 if luatexbase and luatexbase.provides_module then
-  local _,_,_ = luatexbase.provides_module(lualibs_module)
+  local _,_,_ = luatexbase.provides_module(lualibs_basic_module)
 end
 
 local loadmodule = lualibs.loadmodule
