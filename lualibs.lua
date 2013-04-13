@@ -87,7 +87,7 @@ the split into luat-bas.mkiv and luat-lib.mkiv.
 loadmerged"basic.lua"
 --inspect(table.keys(table))
 --inspect(table.keys(string))
-if load_extended then
+if load_extended == true then
   loadmerged"extended.lua"
 end
 

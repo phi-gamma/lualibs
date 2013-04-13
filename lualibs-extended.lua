@@ -73,7 +73,17 @@ local fake_trackers = function (name)
   }
 end
 
-local backup_store
+--[[doc--
+Among the libraries loaded is \verb|util-env.lua|, which adds
+\CONTEXT’s own, superior command line argument handler.
+Packages that rely on their own handling of arguments might not be
+aware of this, or the library might have been loaded by another package
+altogether.
+For these cases we provide a copy of the original \verb|arg| list and
+restore it after we are done loading.
+--doc]]--
+
+local backup_store --- will be populated after util-sto
 local fake_context = function ( )
   if not backup_store then
     backup_store = utilities.storage.allocate()
@@ -82,7 +92,10 @@ local fake_context = function ( )
   if _G.trackers then backup_store.trackers = _G.trackers end
   _G.logs     = fake_logs"logs"
   _G.trackers = fake_trackers"trackers"
+
+  backup_store.argv = table.fastcopy(_G.arg)
 end
+
 
 --[[doc--
 Restore a backed up logger if appropriate.
@@ -90,8 +103,10 @@ Restore a backed up logger if appropriate.
 local unfake_context = function ( )
   if backup_store then
     local bl, bt = backup_store.logs, backup_store.trackers
-    if bl then _G.logs     = bl end
-    if bt then _G.trackers = bt end
+    local argv   = backup_store.argv
+    if bl   then _G.logs     = bl   end
+    if bt   then _G.trackers = bt   end
+    if argv then _G.arg      = argv end
   end
 end
 
