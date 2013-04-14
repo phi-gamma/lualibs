@@ -52,18 +52,13 @@ loadmodule = _G.loadmodule or function (name, t)
   return true
 end
 
-local merged_suffix = "-merged.lua"
-
-local p_suffix      = lpeg.P".lua" * lpeg.P(-1)
-local p_nosuffix    = (1 - p_suffix)^0
-local p_hassuffix   = (p_nosuffix) * p_suffix
-local p_stripsuffix = lpeg.C(p_nosuffix) * p_suffix
-
 --[[doc--
 The separation of the “basic” from the “extended” sets coincides with
 the split into luat-bas.mkiv and luat-lib.mkiv.
 --doc]]--
 loadmodule"lualibs-basic.lua"
+loadmodule"lualibs-compat.lua" --- restore stuff gone since v1.*
+
 if load_extended == true then
   loadmodule"lualibs-extended.lua"
 end
