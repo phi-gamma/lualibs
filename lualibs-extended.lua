@@ -11,6 +11,16 @@ local lualibs_extended_module = {
   license       = "See ConTeXt's mreadme.pdf for the license",
 }
 
+local find_file, error, warn, info
+if luatexbase and luatexbase.provides_module then
+  error, warn, info = luatexbase.provides_module(lualibs_extended_module)
+else
+  error, warn, info = texio.write_nl, texio.write_nl, texio.write_nl -- stub
+end
+
+local stringformat = string.format
+local loadmodule = lualibs.loadmodule
+
 --[[doc--
 Here we define some functions that fake the elaborate logging/tracking
 mechanism Context provides.
@@ -83,11 +93,9 @@ For these cases we provide a copy of the original \verb|arg| list and
 restore it after we are done loading.
 --doc]]--
 
-local backup_store --- will be populated after util-sto
+local backup_store = { }
+
 local fake_context = function ( )
-  if not backup_store then
-    backup_store = utilities.storage.allocate()
-  end
   if _G.logs     then backup_store.logs     = _G.logs     end
   if _G.trackers then backup_store.trackers = _G.trackers end
   _G.logs     = fake_logs"logs"
@@ -110,34 +118,43 @@ local unfake_context = function ( )
   end
 end
 
-local loadmodule = lualibs.loadmodule
-
-loadmodule("lualibs-util-str.lua")--- string formatters (fast)
-loadmodule("lualibs-util-tab.lua")--- extended table operations
-loadmodule("lualibs-util-sto.lua")--- storage (hash allocation)
-----------("lualibs-util-pck.lua")---!packers; necessary?
-----------("lualibs-util-seq.lua")---!sequencers (function chaining)
-----------("lualibs-util-mrg.lua")---!only relevant in mtx-package
-loadmodule("lualibs-util-prs.lua")--- miscellaneous parsers; cool. cool cool cool
-----------("lualibs-util-fmt.lua")---!column formatter (rarely used)
-loadmodule("lualibs-util-dim.lua")--- conversions between dimensions
-loadmodule("lualibs-util-jsn.lua")--- JSON parser
-
-
 fake_context()
 
-----------("lualibs-trac-set.lua")---!generalization of trackers
-----------("lualibs-trac-log.lua")---!logging
-loadmodule("lualibs-trac-inf.lua")--- timing/statistics
-loadmodule("lualibs-util-lua.lua")--- operations on lua bytecode
-loadmodule("lualibs-util-deb.lua")--- extra debugging
-loadmodule("lualibs-util-tpl.lua")--- templating
-loadmodule("lualibs-util-sta.lua")--- stacker (for writing pdf)
--------------------------------------!data-* -- Context specific
-----------("lualibs-util-lib.lua")---!swiglib; there is a luatex-swiglib
-loadmodule("lualibs-util-env.lua")--- environment arguments
-----------("lualibs-mult-ini.lua")---
-----------("lualibs-core-con.lua")---
+local res
+if lualibs.prefer_merged then
+  res = loadmodule('lualibs-extended-merged.lua')
+else
+  info"Ignoring merged packages."
+end
+
+if not res then
+  info(stringformat("Falling back to “%s”.", basename))
+  loadmodule("lualibs-util-str.lua")--- string formatters (fast)
+  loadmodule("lualibs-util-tab.lua")--- extended table operations
+  loadmodule("lualibs-util-sto.lua")--- storage (hash allocation)
+  ----------("lualibs-util-pck.lua")---!packers; necessary?
+  ----------("lualibs-util-seq.lua")---!sequencers (function chaining)
+  ----------("lualibs-util-mrg.lua")---!only relevant in mtx-package
+  loadmodule("lualibs-util-prs.lua")--- miscellaneous parsers; cool. cool cool cool
+  ----------("lualibs-util-fmt.lua")---!column formatter (rarely used)
+  loadmodule("lualibs-util-dim.lua")--- conversions between dimensions
+  ----------("lualibs-util-jsn.lua")--- JSON parser
+
+  ----------("lualibs-trac-set.lua")---!generalization of trackers
+  ----------("lualibs-trac-log.lua")---!logging
+  loadmodule("lualibs-trac-inf.lua")--- timing/statistics
+  loadmodule("lualibs-util-lua.lua")--- operations on lua bytecode
+  loadmodule("lualibs-util-deb.lua")--- extra debugging
+  loadmodule("lualibs-util-tpl.lua")--- templating
+  loadmodule("lualibs-util-sta.lua")--- stacker (for writing pdf)
+  -------------------------------------!data-* -- Context specific
+  ----------("lualibs-util-lib.lua")---!swiglib; there is a luatex-swiglib
+  loadmodule("lualibs-util-env.lua")--- environment arguments
+  ----------("lualibs-mult-ini.lua")---
+  ----------("lualibs-core-con.lua")---
+end
+
+loadmodule"lualibs-util-jsn.lua"--- cannot be merged because of return statement
 
 unfake_context() --- TODO check if this works at runtime
 

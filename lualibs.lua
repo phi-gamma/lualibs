@@ -12,7 +12,7 @@ local lualibs_module = {
 }
 
 --- TODO should be set in some global config
-local prefer_merged = true ---false
+prefer_merged       = true ---false
 local load_extended = true ---false
 
 if config and config.lualibs then
@@ -59,36 +59,13 @@ local p_nosuffix    = (1 - p_suffix)^0
 local p_hassuffix   = (p_nosuffix) * p_suffix
 local p_stripsuffix = lpeg.C(p_nosuffix) * p_suffix
 
-local loadmerged = function (basename)
-  basename = lualibs_module.name .. "-" .. basename
-  if not lpegmatch(p_hassuffix, basename) then -- force .lua suffix
-    basename = basename .. ".lua"
-  end
-  local res
-  if prefer_merged then
-    local mergedname = lpegmatch(p_stripsuffix, basename) .. merged_suffix
-    res = loadmodule(mergedname, "merged package")
-  else
-    info"Ignoring merged packages."
-  end
-  if not res then -- package not present, load individual libs
-    info(stringformat("Falling back to “%s”.", basename))
-    res = loadmodule(basename, "metapackage")
-  end
-  if res == false then
-    error(stringformat("Could not load metapackage “%s”.", basename))
-  end
-end
-
 --[[doc--
 The separation of the “basic” from the “extended” sets coincides with
 the split into luat-bas.mkiv and luat-lib.mkiv.
 --doc]]--
-loadmerged"basic.lua"
---inspect(table.keys(table))
---inspect(table.keys(string))
+loadmodule"lualibs-basic.lua"
 if load_extended == true then
-  loadmerged"extended.lua"
+  loadmodule"lualibs-extended.lua"
 end
 
 -- vim:tw=71:sw=2:ts=2:expandtab
