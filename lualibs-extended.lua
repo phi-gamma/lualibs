@@ -18,8 +18,10 @@ else
   error, warn, info = texio.write_nl, texio.write_nl, texio.write_nl -- stub
 end
 
-local stringformat = string.format
-local loadmodule = lualibs.loadmodule
+local stringformat  = string.format
+local loadmodule    = lualibs.loadmodule
+local texiowrite    = texio.write
+local texiowrite_nl = texio.write_nl
 
 --[[doc--
 Here we define some functions that fake the elaborate logging/tracking
@@ -34,8 +36,6 @@ if luatexbase and luatexbase.provides_module then
   logger = __logger
   mklog = function ( ) return logger end
 else
-  local texiowrite    = texio.write
-  local texiowrite_nl = texio.write_nl
   local stringformat  = string.format
   mklog = function (t)
     local prefix = stringformat("[%s] ", t)
