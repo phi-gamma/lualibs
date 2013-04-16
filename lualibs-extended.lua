@@ -120,15 +120,15 @@ end
 
 fake_context()
 
-local res
+local loaded = false
 if lualibs.prefer_merged then
-  res = loadmodule('lualibs-extended-merged.lua')
+  loaded = loadmodule('lualibs-extended-merged.lua')
 else
   info"Ignoring merged packages."
+  info"Falling back to individual libraries from collection “extended”."
 end
 
-if not res then
-  info(stringformat("Falling back to “%s”.", basename))
+if loaded == false then
   loadmodule("lualibs-util-str.lua")--- string formatters (fast)
   loadmodule("lualibs-util-tab.lua")--- extended table operations
   loadmodule("lualibs-util-sto.lua")--- storage (hash allocation)

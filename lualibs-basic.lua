@@ -21,15 +21,15 @@ end
 local loadmodule   = lualibs.loadmodule
 local stringformat = string.format
 
-local res
+local loaded = false
 if lualibs.prefer_merged then
-  res = loadmodule('lualibs-basic-merged.lua')
+  loaded = loadmodule('lualibs-basic-merged.lua')
 else
   info"Ignoring merged packages."
+  info"Falling back to individual libraries from collection “basic”."
 end
 
-if not res then
-  info(stringformat("Falling back to “%s”.", basename))
+if loaded == false then
   loadmodule("lualibs-lua.lua")
   loadmodule("lualibs-lpeg.lua")
   loadmodule("lualibs-function.lua")
