@@ -31,6 +31,7 @@ end
 
 if loaded == false then
   loadmodule("lualibs-lua.lua")
+  loadmodule("lualibs-package.lua")
   loadmodule("lualibs-lpeg.lua")
   loadmodule("lualibs-function.lua")
   loadmodule("lualibs-string.lua")
