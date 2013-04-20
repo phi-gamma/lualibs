@@ -11,12 +11,8 @@ local lualibs_extended_module = {
   license       = "See ConTeXt's mreadme.pdf for the license",
 }
 
-local find_file, error, warn, info
-if luatexbase and luatexbase.provides_module then
-  error, warn, info = luatexbase.provides_module(lualibs_extended_module)
-else
-  error, warn, info = texio.write_nl, texio.write_nl, texio.write_nl -- stub
-end
+local lualibs = _G.config.lualibs
+local error, warn, info = lualibs.error, lualibs.warn, lualibs.info
 
 local stringformat  = string.format
 local loadmodule    = lualibs.loadmodule
@@ -122,6 +118,7 @@ fake_context()
 
 local loaded = false
 if lualibs.prefer_merged then
+  info"Loading merged package for collection “extended”."
   loaded = loadmodule('lualibs-extended-merged.lua')
 else
   info"Ignoring merged packages."
