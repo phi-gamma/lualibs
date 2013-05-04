@@ -1,5 +1,20 @@
 lualibs = lualibs or { }
 
+--[[doc--
+
+    Loading the \emph{extended} set requires a tad more effort, but
+    it’s well invested.
+
+    Since we only want the functionality, we have to simulate parts
+    of a running \CONTEXT environment, above all logging, that some
+    of the more involved libraries cannot be loaded without.
+    Also, one utility file cannot be packaged because it returns a
+    table which would preclude loading of later code.
+    Thus, we remove it from the natural loading chain (it is not
+    critical) and append it at the end.
+
+--doc]]--
+
 local lualibs_extended_module = {
   name          = "lualibs-extended",
   version       = 2.00,
@@ -10,7 +25,6 @@ local lualibs_extended_module = {
   license       = "See ConTeXt's mreadme.pdf for the license",
 }
 
-local error, warn, info = lualibs.error, lualibs.warn, lualibs.info
 
 local stringformat     = string.format
 local loadmodule       = lualibs.loadmodule
@@ -18,9 +32,12 @@ local texiowrite       = texio.write
 local texiowrite_nl    = texio.write_nl
 
 --[[doc--
-Here we define some functions that fake the elaborate logging/tracking
-mechanism Context provides.
+
+    Here we define some functions that fake the elaborate
+    logging/tracking mechanism Context provides.
+
 --doc]]--
+
 local error, logger, mklog
 if luatexbase and luatexbase.provides_module then
   --- TODO test how those work out when running tex
@@ -42,16 +59,20 @@ else
   logger = mklog"INFO"
 end
 
---[[doc--
-We temporarily put our own global table in place and restore whatever
-we overloaded afterwards.
+local info = lualibs.info
 
-\CONTEXT\ modules each have a custom logging mechanism that can be
-enabled for debugging.
-In order to fake the presence of this facility we need to define at
-least the function \verb|logs.reporter|.
-For now it’s sufficient to make it a reference to \verb|mklog| as
-defined above.
+--[[doc--
+
+    We temporarily put our own global table in place and restore
+    whatever we overloaded afterwards.
+
+    \CONTEXT\ modules each have a custom logging mechanism that can be
+    enabled for debugging.
+    In order to fake the presence of this facility we need to define at
+    least the function \verb|logs.reporter|.
+    For now it’s sufficient to make it a reference to \verb|mklog| as
+    defined above.
+
 --doc]]--
 
 local dummy_function = function ( ) end

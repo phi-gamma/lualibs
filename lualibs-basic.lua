@@ -1,4 +1,6 @@
-lualibs = lualibs or { }
+lualibs                 = lualibs or { }
+local info              = lualibs.info
+local loadmodule        = lualibs.loadmodule
 
 local lualibs_basic_module = {
   name          = "lualibs-basic",
@@ -10,12 +12,8 @@ local lualibs_basic_module = {
   license       = "See ConTeXt's mreadme.pdf for the license",
 }
 
-local error, warn, info = lualibs.error, lualibs.warn, lualibs.info
+local loaded = false --- track success of package loading
 
-local loadmodule      = lualibs.loadmodule
-local stringformat    = string.format
-
-local loaded = false
 if lualibs.prefer_merged then
   info"Loading merged package for collection “basic”."
   loaded = loadmodule('lualibs-basic-merged.lua')
@@ -23,6 +21,15 @@ else
   info"Ignoring merged packages."
   info"Falling back to individual libraries from collection “basic”."
 end
+
+--[[doc--
+
+    \verb|mtx-package| expects the files to be included by
+    \verb|loadmodule|.
+    If run on this file, it will create \verb|lualibs-basic-merged.lua|
+    from all the files mentioned in the next block.
+
+--doc]]--
 
 if loaded == false then
   loadmodule("lualibs-lua.lua")
