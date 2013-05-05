@@ -119,6 +119,7 @@ and the derived file lualibs.lua.
     pdfauthor={Elie Roux & Philipp Gesang},
   pdfkeywords={luatex, lualatex, unicode, opentype}
 ]{hyperref}
+\newcommand*\email[1]{\href{mailto:#1}{#1}}
 \usepackage{fontspec}
 \setmainfont[
   Numbers=OldStyle,
@@ -132,6 +133,7 @@ and the derived file lualibs.lua.
 \newcommand\TEX     {\TeX\xspace}
 \newcommand\LATEX   {\LaTeX\xspace}
 \newcommand\LUA     {Lua\xspace}
+\newcommand\LUATEX  {Lua\TEX}
 \newcommand\CONTEXT {Con\TeX t\xspace}
 \def\definehighlight[#1][#2]%
  {\ifcsname #1\endcsname\else
@@ -150,8 +152,27 @@ and the derived file lualibs.lua.
 \definehighlight     [abbrev][\rmfamily\scshape]                   %% acronyms
 \definehighlight   [emphasis][\rmfamily\slshape]                   %% level 1 emph
 
+\usepackage{titlesec}
+\def\movecountertomargin#1{\llap{\rmfamily\upshape#1\hskip2em}}
+\def\zeropoint{0pt}
+%% we don’t have to grab attention like a child
+\titleformat \part
+             {\normalsize\bfseries}
+             {\movecountertomargin\thepart} \zeropoint {}
+\titleformat \section
+             {\normalsize\scshape}%% no \word; life is full of disappointments
+             {\movecountertomargin\thesection} \zeropoint {}
+\titleformat \subsection
+             {\small\itshape}
+             {\movecountertomargin\thesubsection} \zeropoint {}
 \renewcommand\partname{Part}%% gets rid of the stupid “file” heading
-\newcommand*\email[1]{\href{mailto:#1}{#1}}
+
+\usepackage{tocloft}
+\renewcommand \cftpartfont   {\rmfamily\upshape}
+\renewcommand \cftsecfont    {\rmfamily\upshape}
+\renewcommand \cftsubsecfont {\rmfamily\upshape}
+\setlength \cftbeforepartskip {1ex}
+\setlength \cftbeforesecskip  {1ex}
 
 \begin{document}
   \DocInput{lualibs.dtx}%
@@ -199,17 +220,17 @@ and the derived file lualibs.lua.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \section{Overview}
 %
-% Lua is a very minimal language, and it does not have a minimal standard
+% \LUA is a very minimal language, and it does only have a minimal standard
 % library. The aim of this package is to provide an extended standard library,
-% to be used by various Lua\TeX\ packages. The code is specific to Lua\TeX\
-% and depends on Lua\TeX\ functions and modules not available in regular lua.
+% to be used by various \LUATEX packages. The code is specific to \LUATEX
+% and depends on \LUATEX functions and modules not available in regular lua.
 %
 % \noindent The code is derived from \CONTEXT libraries.
 %
 % \section{Usage}
 %
 % You can either load the \identifier{lualibs} module, which will in turn load
-% one of two sets of libaraies provided by this package: |require("lualibs")|, or
+% one of two sets of libraries provided by this package: |require("lualibs")|, or
 % explicitly load the modules you need, e.g.: |require("lualibs-table")|,
 % please note that some modules depend on others.
 %
@@ -268,56 +289,68 @@ and the derived file lualibs.lua.
 % library categories: The generic auxiliary functions (original file prefix:
 % |l-|) together form something close to a standard libary. Most of these are
 % extensions of an existing namespace, like for instance |l-table.lua| which
-% adds full-fledged serialization capabilities to the Lua table library.
+% adds full-fledged serialization capabilities to the \LUA table library.
 % They were imported under the \identifier{lualibs}-prefix.
-% (For a list see table~\ref{tab:extensions}.)
+% (For a list see table~\ref{tab:basic}.)
 %
-% \begin{table}[h]
+% \begin{table}[t]
+%  \hrule
 %  \centering
-%  \caption{Extensions of the Lua standard library.}
+%  \caption{The \identifier{basic} set.}
+%  \vskip1em
 %  \begin{tabular}{l l l}
-%   \identifier{lualibs} name & \CONTEXT name & content                        \\
-%   \hline
-%   lualibs-lua.lua       & l-lua.lua      & compatibility, library paths   \\
-%   lualibs-lpeg.lua      & l-lpeg.lua     & patterns                       \\
-%   lualibs-function.lua  & l-function.lua & empty except for dummy         \\
-%   lualibs-string.lua    & l-string.lua   & string manipulation            \\
-%   lualibs-table.lua     & l-table.lua    & serialization, conversion      \\
-%   lualibs-boolean.lua   & l-boolean.lua  & boolean converter              \\
-%   lualibs-number.lua    & l-number.lua   & bit operations                 \\
-%   lualibs-math.lua      & l-math.lua     & math functions                 \\
-%   lualibs-io.lua        & l-io.lua       & reading and writing files      \\
-%   lualibs-os.lua        & l-os.lua       & platform specific code         \\
-%   lualibs-file.lua      & l-file.lua     & filesystem operations          \\
-%   lualibs-md5.lua       & l-md5.lua      & checksum functions             \\
-%   lualibs-dir.lua       & l-dir.lua      & directory handling             \\
-%   lualibs-unicode.lua   & l-unicode.lua  & utf and unicode                \\
-%   lualibs-url.lua       & l-url.lua      & url handling                   \\
-%   lualibs-set.lua       & l-set.lua      & sets                           \\
+%   \identifier{lualibs} name & \CONTEXT name  & primary purpose                \\[1ex]
+%   lualibs-lua.lua           & l-lua.lua      & compatibility                  \\
+%   lualibs-package.lua       & l-package.lua  & \LUA file loaders              \\
+%   lualibs-lpeg.lua          & l-lpeg.lua     & patterns                       \\
+%   lualibs-function.lua      & l-function.lua & defines a dummy function       \\
+%   lualibs-string.lua        & l-string.lua   & string manipulation            \\
+%   lualibs-table.lua         & l-table.lua    & serialization, conversion      \\
+%   lualibs-boolean.lua       & l-boolean.lua  & boolean converter              \\
+%   lualibs-number.lua        & l-number.lua   & bit operations                 \\
+%   lualibs-math.lua          & l-math.lua     & math functions                 \\
+%   lualibs-io.lua            & l-io.lua       & reading and writing files      \\
+%   lualibs-os.lua            & l-os.lua       & platform specific code         \\
+%   lualibs-file.lua          & l-file.lua     & filesystem operations          \\
+%   lualibs-md5.lua           & l-md5.lua      & checksum functions             \\
+%   lualibs-dir.lua           & l-dir.lua      & directory handling             \\
+%   lualibs-unicode.lua       & l-unicode.lua  & utf and unicode                \\
+%   lualibs-url.lua           & l-url.lua      & url handling                   \\
+%   lualibs-set.lua           & l-set.lua      & sets                           \\[1ex]
 %  \end{tabular}
-%  \label{tab:extensions}
+%  \label{tab:basic}
+%  \hrule
 % \end{table}
 %
 % The second category comprises a selection of files mostly from the
-% utilities namespace (|util-|; cf. table~\ref{tab:utilities}).
+% utilities namespace (|util-|; cf. table~\ref{tab:extended}).
 % Their purpose is more specific and at times quite low-level.
 %
-% \begin{table}[h]
+% \begin{table}[t]
+%  \hrule
 %  \centering
-%  \caption{Utility functions.}
+%  \caption{The \identifier{extended} set.}
+%  \vskip1em
 %  \begin{tabular}{l l l}
-%   \identifier{lualibs} name & \CONTEXT name & content                     \\
-%   \hline
-%   lualibs-util-lua.lua  & util-lua.lua   & operations on bytecode      \\
-%   lualibs-util-sto.lua  & util-sto.lua   & table allocation            \\
-%   lualibs-util-mrg.lua  & util-mrg.lua   & merging lua sources         \\
-%   lualibs-util-dim.lua  & util-dim.lua   & converters for dimensions   \\
-%   lualibs-util-str.lua  & util-str.lua   & extra string functions      \\
-%   lualibs-util-tab.lua  & util-tab.lua   & extra table functions       \\
-%   lualibs-util-jsn.lua  & util-jsn.lua   & conversion to and from json \\
+%   \identifier{lualibs} name & \CONTEXT name  & primary purpose                  \\[1ex]
+%   lualibs-util-str.lua      & util-str.lua   & extra |string| functions         \\
+%   lualibs-util-tab.lua      & util-tab.lua   & extra |table| functions          \\
+%   lualibs-util-sto.lua      & util-sto.lua   & table allocation                 \\
+%   lualibs-util-prs.lua      & util-sto.lua   & miscellaneous parsers            \\
+%   lualibs-util-dim.lua      & util-dim.lua   & conversion between dimensions    \\
+%   lualibs-trac-inf.lua      & trac-inf.lua   & timing, statistics               \\
+%   lualibs-util-lua.lua      & util-lua.lua   & operations on bytecode           \\
+%   lualibs-util-deb.lua      & util-deb.lua   & extra |debug| functionality      \\
+%   lualibs-util-tpl.lua      & util-tpl.lua   & templating                       \\
+%   lualibs-util-sta.lua      & util-sta.lua   & stacker (e.~g. for \abbrev{pdf}) \\
+%   lualibs-util-env.lua      & util-env.lua   & |argv| handling                  \\
+%   lualibs-util-jsn.lua      & util-jsn.lua   & conversion to and from json      \\[1ex]
 %  \end{tabular}
-%  \label{tab:utilities}
+%  \label{tab:extended}
+%  \hrule
 % \end{table}
+%
+% \section{Packaging}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \part{\fileent{lualibs.lua}}
