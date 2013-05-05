@@ -70,6 +70,16 @@ and the derived file lualibs.lua.
   \file{lualibs.lua}{\from{lualibs.dtx}{lualibs}}%
 }
 
+\generate{%
+  \usedir{tex/luatex/lualibs}%
+  \file{lualibs-basic.lua}{\from{lualibs.dtx}{basic}}%
+}
+
+\generate{%
+  \usedir{tex/luatex/lualibs}%
+  \file{lualibs-extended.lua}{\from{lualibs.dtx}{extended}}%
+}
+
 \obeyspaces
 \Msg{************************************************************************}
 \Msg{*}
@@ -114,14 +124,34 @@ and the derived file lualibs.lua.
   Numbers=OldStyle,
   Ligatures=TeX,
 ]{Linux Libertine O}
-\setmonofont[Ligatures=TeX,Scale=MatchLowercase]{Liberation Mono}
-\setsansfont[Ligatures=TeX,Scale=MatchLowercase]{Iwona Medium}
+\setmonofont [Ligatures=TeX,Scale=MatchLowercase] {Liberation Mono}
+\setsansfont [Ligatures=TeX,Scale=MatchLowercase] {Iwona Medium}
 \usepackage{hologo}
 \EnableCrossrefs
 \CodelineIndex
 \newcommand\TEX     {\TeX\xspace}
 \newcommand\LUA     {Lua\xspace}
 \newcommand\CONTEXT {Con\TeX t\xspace}
+\def\definehighlight[#1][#2]%
+ {\ifcsname #1\endcsname\else
+    \expandafter\def\csname #1\endcsname%
+      {\bgroup#2\csname #1_indeed\endcsname}
+    \expandafter\def\csname #1_indeed\endcsname##1%
+      {##1\egroup}%
+  \fi}
+
+\def\restoreunderscore{\catcode`\_=12\relax}
+
+\definehighlight    [fileent][\ttfamily\restoreunderscore]         %% files, dirs
+\definehighlight   [texmacro][\sffamily\itshape\textbackslash]     %% cs
+\definehighlight[luafunction][\sffamily\itshape\restoreunderscore] %% lua identifiers
+\definehighlight [identifier][\sffamily]                           %% names
+\definehighlight     [abbrev][\rmfamily\scshape]                   %% acronyms
+\definehighlight   [emphasis][\rmfamily\slshape]                   %% level 1 emph
+
+\renewcommand\partname{Part}%% gets rid of the stupid “file” heading
+\newcommand*\email[1]{\href{mailto:#1}{#1}}
+
 \begin{document}
   \DocInput{lualibs.dtx}%
 \end{document}
@@ -149,8 +179,8 @@ and the derived file lualibs.lua.
 %
 % \title{The \textsf{lualibs} package}
 % \date{2013/05/04 v2.00}
-% \author{Élie Roux      · \texttt{elie.roux@telecom-bretagne.eu}\\
-%         Philipp Gesang · \texttt{philipp.gesang@alumni.uni-heidelberg.de}}
+% \author{Élie Roux      · \email{elie.roux@telecom-bretagne.eu}\\
+%         Philipp Gesang · \email{philipp.gesang@alumni.uni-heidelberg.de}}
 %
 % \maketitle
 %
@@ -158,9 +188,14 @@ and the derived file lualibs.lua.
 % Additional \LUA functions taken from the \verb|l-*| and \verb|util-*| files
 % of Con\TeX t.
 % For an introduction on this package (among others), please refer
-% to the document \texttt{luatex-reference.pdf}.
+% to the document \fileent{lualatex-doc.pdf}.
 % \end{abstract}
 %
+% \tableofcontents
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \part{Package Description}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \section{Overview}
 %
 % Lua is a very minimal language, and it does not have a minimal standard
@@ -172,10 +207,24 @@ and the derived file lualibs.lua.
 %
 % \section{Usage}
 %
-% You can either load the \texttt{lualibs} module, which will load all other
-% modules, provided by this package: |require("lualibs")|, or explicitly
-% load the modules you need, e.g.: |require("lualibs-table")|, please note that
-% some modules depend on others.
+% You can either load the \identifier{lualibs} module, which will in turn load
+% one of two sets of libaraies provided by this package: |require("lualibs")|, or
+% explicitly load the modules you need, e.g.: |require("lualibs-table")|,
+% please note that some modules depend on others.
+%
+% \subsection{Loading Library Collections}
+%
+%
+%
+% \subsection{Loading libraries Individually}
+% In order to load the \fileent{table} module you would actually have to prepare
+% it as follows:
+%
+% \begin{quote}\begin{verbatim}
+%   require"lualibs-lua"
+%   require"lualibs-lpeg"
+%   require"lualibs-table"
+% \end{verbatim}\end{quote}
 %
 % \noindent If your code is running under \textsf{texlua}, you will need to
 % initialize \textsf{kpse} library so that |require()| can find files under
@@ -238,8 +287,9 @@ and the derived file lualibs.lua.
 %  \label{tab:utilities}
 % \end{table}
 %
-% \pagebreak
-% \section{\texttt{lualibs.lua}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \part{\fileent{lualibs.lua}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % \iffalse
 %<*lualibs>
@@ -370,5 +420,266 @@ end
 % \iffalse
 %</lualibs>
 % \fi
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \part{\fileent{lualibs-basic.lua}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% \iffalse
+%<*basic>
+% \fi
+%    \begin{macrocode}
+lualibs                 = lualibs or { }
+local info              = lualibs.info
+local loadmodule        = lualibs.loadmodule
+
+local lualibs_basic_module = {
+  name          = "lualibs-basic",
+  version       = 2.00,
+  date          = "2013/04/30",
+  description   = "ConTeXt Lua libraries -- basic collection.",
+  author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux & Philipp Gesang",
+  copyright     = "PRAGMA ADE / ConTeXt Development Team",
+  license       = "See ConTeXt's mreadme.pdf for the license",
+}
+
+local loaded = false --- track success of package loading
+
+if lualibs.prefer_merged then
+  info"Loading merged package for collection “basic”."
+  loaded = loadmodule('lualibs-basic-merged.lua')
+else
+  info"Ignoring merged packages."
+  info"Falling back to individual libraries from collection “basic”."
+end
+
+%    \end{macrocode}
+%     \verb|mtx-package| expects the files to be included by
+%     \verb|loadmodule|.
+%     If run on this file, it will create \verb|lualibs-basic-merged.lua|
+%     from all the files mentioned in the next block.
+%
+%    \begin{macrocode}
+
+if loaded == false then
+  loadmodule("lualibs-lua.lua")
+  loadmodule("lualibs-package.lua")
+  loadmodule("lualibs-lpeg.lua")
+  loadmodule("lualibs-function.lua")
+  loadmodule("lualibs-string.lua")
+  loadmodule("lualibs-table.lua")
+  loadmodule("lualibs-boolean.lua")
+  loadmodule("lualibs-number.lua")
+  loadmodule("lualibs-math.lua")
+  loadmodule("lualibs-io.lua")
+  loadmodule("lualibs-os.lua")
+  loadmodule("lualibs-file.lua")
+  loadmodule("lualibs-md5.lua")
+  loadmodule("lualibs-dir.lua")
+  loadmodule("lualibs-unicode.lua")
+  loadmodule("lualibs-url.lua")
+  loadmodule("lualibs-set.lua")
+end
+
+lualibs.basic_loaded = true
+-- vim:tw=71:sw=2:ts=2:expandtab
+
+%    \end{macrocode}
+%
+% \iffalse
+%</basic>
+% \fi
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \part{\fileent{lualibs-extended.lua}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% \iffalse
+%<*extended>
+% \fi
+%    \begin{macrocode}
+lualibs = lualibs or { }
+
+%    \end{macrocode}
+%     Loading the \emph{extended} set requires a tad more effort, but
+%     it’s well invested.
+%
+%     Since we only want the functionality, we have to simulate parts
+%     of a running \CONTEXT environment, above all logging, that some
+%     of the more involved libraries cannot be loaded without.
+%     Also, one utility file cannot be packaged because it returns a
+%     table which would preclude loading of later code.
+%     Thus, we remove it from the natural loading chain (it is not
+%     critical) and append it at the end.
+%
+%    \begin{macrocode}
+
+local lualibs_extended_module = {
+  name          = "lualibs-extended",
+  version       = 2.00,
+  date          = "2013/04/30",
+  description   = "ConTeXt Lua libraries -- extended collection.",
+  author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux & Philipp Gesang",
+  copyright     = "PRAGMA ADE / ConTeXt Development Team",
+  license       = "See ConTeXt's mreadme.pdf for the license",
+}
+
+
+local stringformat     = string.format
+local loadmodule       = lualibs.loadmodule
+local texiowrite       = texio.write
+local texiowrite_nl    = texio.write_nl
+
+%    \end{macrocode}
+%     Here we define some functions that fake the elaborate
+%     logging/tracking mechanism Context provides.
+%
+%    \begin{macrocode}
+
+local error, logger, mklog
+if luatexbase and luatexbase.provides_module then
+  --- TODO test how those work out when running tex
+  local __error,_,_,__logger =
+    luatexbase.provides_module(lualibs_extended_module)
+  error  = __error
+  logger = __logger
+  mklog = function ( ) return logger end
+else
+  mklog = function (t)
+    local prefix = stringformat("[%s] ", t)
+    return function (...)
+      texiowrite_nl(prefix)
+      texiowrite   (stringformat(...))
+    end
+  end
+  error  = mklog"ERROR"
+  logger = mklog"INFO"
+end
+
+local info = lualibs.info
+
+%    \end{macrocode}
+%     We temporarily put our own global table in place and restore
+%     whatever we overloaded afterwards.
+%
+%     \CONTEXT\ modules each have a custom logging mechanism that can be
+%     enabled for debugging.
+%     In order to fake the presence of this facility we need to define at
+%     least the function \verb|logs.reporter|.
+%     For now it’s sufficient to make it a reference to \verb|mklog| as
+%     defined above.
+%
+%    \begin{macrocode}
+
+local dummy_function = function ( ) end
+local newline        = function ( ) texiowrite_nl"" end
+
+local fake_logs = function (name)
+  return {
+    name     = name,
+    enable   = dummy_function,
+    disable  = dummy_function,
+    reporter = mklog,
+    newline  = newline
+  }
+end
+
+local fake_trackers = function (name)
+  return {
+    name     = name,
+    enable   = dummy_function,
+    disable  = dummy_function,
+    register = mklog,
+    newline  = newline,
+  }
+end
+
+%    \end{macrocode}
+% Among the libraries loaded is \verb|util-env.lua|, which adds
+% \CONTEXT’s own, superior command line argument handler.
+% Packages that rely on their own handling of arguments might not be
+% aware of this, or the library might have been loaded by another package
+% altogether.
+% For these cases we provide a copy of the original \verb|arg| list and
+% restore it after we are done loading.
+%
+%    \begin{macrocode}
+
+local backup_store = { }
+
+local fake_context = function ( )
+  if logs     then backup_store.logs     = logs     end
+  if trackers then backup_store.trackers = trackers end
+  logs     = fake_logs"logs"
+  trackers = fake_trackers"trackers"
+
+  backup_store.argv = table.fastcopy(arg)
+end
+
+
+%    \end{macrocode}
+% Restore a backed up logger if appropriate.
+%
+%    \begin{macrocode}
+local unfake_context = function ( )
+  if backup_store then
+    local bl, bt = backup_store.logs, backup_store.trackers
+    local argv   = backup_store.argv
+    if bl   then logs     = bl   end
+    if bt   then trackers = bt   end
+    if argv then arg      = argv end
+  end
+end
+
+fake_context()
+
+local loaded = false
+if lualibs.prefer_merged then
+  info"Loading merged package for collection “extended”."
+  loaded = loadmodule('lualibs-extended-merged.lua')
+else
+  info"Ignoring merged packages."
+  info"Falling back to individual libraries from collection “extended”."
+end
+
+if loaded == false then
+  loadmodule("lualibs-util-str.lua")--- string formatters (fast)
+  loadmodule("lualibs-util-tab.lua")--- extended table operations
+  loadmodule("lualibs-util-sto.lua")--- storage (hash allocation)
+  ----------("lualibs-util-pck.lua")---!packers; necessary?
+  ----------("lualibs-util-seq.lua")---!sequencers (function chaining)
+  ----------("lualibs-util-mrg.lua")---!only relevant in mtx-package
+  loadmodule("lualibs-util-prs.lua")--- miscellaneous parsers; cool. cool cool cool
+  ----------("lualibs-util-fmt.lua")---!column formatter (rarely used)
+  loadmodule("lualibs-util-dim.lua")--- conversions between dimensions
+  ----------("lualibs-util-jsn.lua")--- JSON parser
+
+  ----------("lualibs-trac-set.lua")---!generalization of trackers
+  ----------("lualibs-trac-log.lua")---!logging
+  loadmodule("lualibs-trac-inf.lua")--- timing/statistics
+  loadmodule("lualibs-util-lua.lua")--- operations on lua bytecode
+  loadmodule("lualibs-util-deb.lua")--- extra debugging
+  loadmodule("lualibs-util-tpl.lua")--- templating
+  loadmodule("lualibs-util-sta.lua")--- stacker (for writing pdf)
+  -------------------------------------!data-* -- Context specific
+  ----------("lualibs-util-lib.lua")---!swiglib; there is a luatex-swiglib
+  loadmodule("lualibs-util-env.lua")--- environment arguments
+  ----------("lualibs-mult-ini.lua")---
+  ----------("lualibs-core-con.lua")---
+end
+
+loadmodule"lualibs-util-jsn.lua"--- cannot be merged because of return statement
+
+unfake_context() --- TODO check if this works at runtime
+
+lualibs.extended_loaded = true
+-- vim:tw=71:sw=2:ts=2:expandtab
+
+%    \end{macrocode}
+%
+% \iffalse
+%</extended>
+% \fi
+%
 % \Finale
 \endinput
