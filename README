@@ -67,6 +67,7 @@ Source files:
     lualibs-util-str.lua
     lualibs-util-tab.lua
     lualibs-util-tpl.lua
+    LICENSE
     Makefile
     NEWS
     README
@@ -79,22 +80,13 @@ Derived files:
     lualibs-extended-merged.lua
     lualibs.pdf
 
-License
+License and Copyright
 --------------------------------------------------------------------------------
 
-This work and the derived files are under the Creative Commons CC0 license.
+As a derived work of Context, this work and the derived files are under the
+GNU GPL v.2.0 license.
+The full text of the license is included in the file LICENSE.
 
-See the full text at
+The files taken from Context (lualibs-*.lua) are copyright PRAGMA ADE / ConTeXt
+Development Team.
 
-http://creativecommons.org/publicdomain/zero/1.0/legalcode
-
-and a FAQ at
-
-http://wiki.creativecommons.org/CC0
-
-The files lualibs-*.lua are under the same GNU GPLv2 license as Context. Their
-legal notice starts by:
-
-"
-Copyright PRAGMA ADE / ConTeXt Development Team
-"
