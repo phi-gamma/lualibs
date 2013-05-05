@@ -130,6 +130,7 @@ and the derived file lualibs.lua.
 \EnableCrossrefs
 \CodelineIndex
 \newcommand\TEX     {\TeX\xspace}
+\newcommand\LATEX   {\LaTeX\xspace}
 \newcommand\LUA     {Lua\xspace}
 \newcommand\CONTEXT {Con\TeX t\xspace}
 \def\definehighlight[#1][#2]%
@@ -177,7 +178,7 @@ and the derived file lualibs.lua.
 %
 % \GetFileInfo{lualibs.drv}
 %
-% \title{The \textsf{lualibs} package}
+% \title{The \identifier{lualibs} package}
 % \date{2013/05/04 v2.00}
 % \author{Élie Roux      · \email{elie.roux@telecom-bretagne.eu}\\
 %         Philipp Gesang · \email{philipp.gesang@alumni.uni-heidelberg.de}}
@@ -186,7 +187,7 @@ and the derived file lualibs.lua.
 %
 % \begin{abstract}
 % Additional \LUA functions taken from the \verb|l-*| and \verb|util-*| files
-% of Con\TeX t.
+% of \CONTEXT.
 % For an introduction on this package (among others), please refer
 % to the document \fileent{lualatex-doc.pdf}.
 % \end{abstract}
@@ -203,7 +204,7 @@ and the derived file lualibs.lua.
 % to be used by various Lua\TeX\ packages. The code is specific to Lua\TeX\
 % and depends on Lua\TeX\ functions and modules not available in regular lua.
 %
-% \noindent The code is derived from Con\TeX t libraries.
+% \noindent The code is derived from \CONTEXT libraries.
 %
 % \section{Usage}
 %
@@ -214,7 +215,37 @@ and the derived file lualibs.lua.
 %
 % \subsection{Loading Library Collections}
 %
+% The libraries are split into a \identifier{basic} and an
+% \identifier{extended} collection.
+% Though neither initialization time nor memory consumption will be noticably
+% impacted,\footnote{%
+%   Note that in terms of code this is only a small fraction of what
+%   \CONTEXT loads with every run.
+% }
+% the \identifier{lualibs} package can skip loading of the latter on demand.
+% The \luafunction{config} table needs to be present prior to loading the
+% package for this to work (in the future this may be achieved by an option of
+% \texmacro{usepackage}) for \LATEX users).
+% In the \verb|lualibs| field, set \verb|load_extended| to false:
 %
+% \begin{quote}\begin{verbatim}
+%   \directlua{
+%     --- 1) create config table safely
+%     config                        = config or { }
+%     config.lualibs                = config.lualibs or { }
+%
+%     --- 2) unset the load_extended entry
+%     config.lualibs.load_extended  = false
+%
+%     --- 3) load the lualibs
+%     require "lualibs"
+%   }
+% \end{verbatim}\end{quote}
+%
+% However, there is no guarantee that the \identifier{extended} set remains
+% permanently excluded.
+% Re-loading the package at a later point will cancel this option and possibly
+% add the missing libraries.
 %
 % \subsection{Loading libraries Individually}
 % In order to load the \fileent{table} module you would actually have to prepare
@@ -226,25 +257,26 @@ and the derived file lualibs.lua.
 %   require"lualibs-table"
 % \end{verbatim}\end{quote}
 %
-% \noindent If your code is running under \textsf{texlua}, you will need to
-% initialize \textsf{kpse} library so that |require()| can find files under
-% TEXMF tree: |kpse.set_program_name("luatex")|.
+% \noindent
+% If your code is run by the \fileent{texlua} intepreter, you will need to
+% initialize \luafunction{kpse} library so that |require()| can find files
+% under \abbrev{texmf} tree: |kpse.set_program_name("luatex")|.
 %
 % \section{Files}
 %
-% The \textsf{lualibs} bundle contains files from two Con\TeX t Lua
+% The \identifier{lualibs} bundle contains files from two \CONTEXT \LUA
 % library categories: The generic auxiliary functions (original file prefix:
 % |l-|) together form something close to a standard libary. Most of these are
 % extensions of an existing namespace, like for instance |l-table.lua| which
 % adds full-fledged serialization capabilities to the Lua table library.
-% They were imported under the \textsf{lualibs}-prefix.
+% They were imported under the \identifier{lualibs}-prefix.
 % (For a list see table~\ref{tab:extensions}.)
 %
 % \begin{table}[h]
 %  \centering
 %  \caption{Extensions of the Lua standard library.}
 %  \begin{tabular}{l l l}
-%   \textsf{lualibs} name & Con\TeX t name & content                        \\
+%   \identifier{lualibs} name & \CONTEXT name & content                        \\
 %   \hline
 %   lualibs-lua.lua       & l-lua.lua      & compatibility, library paths   \\
 %   lualibs-lpeg.lua      & l-lpeg.lua     & patterns                       \\
@@ -274,7 +306,7 @@ and the derived file lualibs.lua.
 %  \centering
 %  \caption{Utility functions.}
 %  \begin{tabular}{l l l}
-%   \textsf{lualibs} name & Con\TeX t name & content                     \\
+%   \identifier{lualibs} name & \CONTEXT name & content                     \\
 %   \hline
 %   lualibs-util-lua.lua  & util-lua.lua   & operations on bytecode      \\
 %   lualibs-util-sto.lua  & util-sto.lua   & table allocation            \\
