@@ -58,7 +58,7 @@ world: all ctan
 $(UNPACKED): lualibs.dtx
 	$(DO_TEX)
 
-$(CTAN_ZIP): $(SOURCE) $(COMPILED) $(TDS_ZIP)
+$(CTAN_ZIP): $(SOURCE) $(COMPILED) $(GENERATED) $(TDS_ZIP)
 	@echo "Making $@ for CTAN upload."
 	@$(RM) -- $@
 	@zip -9 $@ $^ >/dev/null
