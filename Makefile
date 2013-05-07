@@ -33,7 +33,7 @@ TDS_ZIP = $(NAME).tds.zip
 ZIPS = $(CTAN_ZIP) $(TDS_ZIP)
 
 DO_TEX 			= luatex     --interaction=batchmode $< >/dev/null
-DO_PDFLATEX 	= lualatex   --interaction=batchmode $< >/dev/null
+DO_PDFLATEX 	= latexmk -pdf -e '$$pdflatex = q(lualatex %O %S)' -silent $< >/dev/null
 DO_MAKEINDEX 	= makeindex  -s gind.ist $(subst .dtx,,$<) >/dev/null 2>&1
 DO_PACKAGE 		= mtxrun     --script package --merge $< >/dev/null
 
