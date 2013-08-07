@@ -112,5 +112,6 @@ clean:
 
 mrproper: clean
 	@$(RM) -- $(GENERATED) $(ZIPS)
+	@$(RM) -r $(DISTDIR)
 
 merge: $(MERGED)
