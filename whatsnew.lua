@@ -46,6 +46,7 @@ local filenames = {
     "dir",
     "file",
     "function",
+    "gzip",
     "io",
     "lpeg",
     "lua",
