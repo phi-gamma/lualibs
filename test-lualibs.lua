@@ -3,6 +3,7 @@
 local luafiles = {
   "lualibs-boolean.lua",   "lualibs-compat.lua",
   "lualibs-dir.lua",       "lualibs-file.lua",
+  "lualibs-gzip.lua",
   "lualibs-function.lua",  "lualibs-io.lua",
   "lualibs-lpeg.lua",      "lualibs-lua.lua",
   "lualibs-math.lua",      "lualibs-md5.lua",

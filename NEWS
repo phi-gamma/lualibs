@@ -1,4 +1,8 @@
                         History of the lualibs package
+2013/11/03 v2.1/
+    * sync with Context beta as of 2013-11-01
+    * add l-gzip
+
 2013/07/23 v2.0c/
     * sync with Context beta as of 2013-07-14
 

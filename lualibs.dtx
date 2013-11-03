@@ -34,7 +34,7 @@
 \input docstrip.tex
 \Msg{************************************************************************}
 \Msg{* Installation}
-\Msg{* Package: lualibs 2013/07/23 v2.0c Lua additional functions.}
+\Msg{* Package: lualibs 2013/11/03 v2.1 Lua additional functions.}
 \Msg{************************************************************************}
 
 \keepsilent
@@ -101,7 +101,7 @@ and the derived file lualibs.lua.
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesFile{lualibs.drv}
-  [2013/07/23 v2.0c Lua Libraries.]
+  [2013/11/03 v2.1 Lua Libraries.]
 \documentclass{ltxdoc}
 \usepackage{fancyvrb,xspace}
 \usepackage[x11names]{xcolor}
@@ -202,7 +202,7 @@ and the derived file lualibs.lua.
 % \GetFileInfo{lualibs.drv}
 %
 % \title{The \identifier{lualibs} package}
-% \date{2013/07/23 v2.0c}
+% \date{2013/11/03 v2.1}
 % \author{Élie Roux      · \email{elie.roux@telecom-bretagne.eu}\\
 %         Philipp Gesang · \email{philipp.gesang@alumni.uni-heidelberg.de}}
 %
@@ -315,6 +315,7 @@ and the derived file lualibs.lua.
 %   lualibs-io.lua            & l-io.lua       & reading and writing files      \\
 %   lualibs-os.lua            & l-os.lua       & platform specific code         \\
 %   lualibs-file.lua          & l-file.lua     & filesystem operations          \\
+%   lualibs-gzip.lua          & l-gzip.lua     & wrapper for \identifier{lgzip} \\
 %   lualibs-md5.lua           & l-md5.lua      & checksum functions             \\
 %   lualibs-dir.lua           & l-dir.lua      & directory handling             \\
 %   lualibs-unicode.lua       & l-unicode.lua  & utf and unicode                \\
@@ -417,8 +418,8 @@ lualibs = lualibs or { }
 
 lualibs.module_info = {
   name          = "lualibs",
-  version       = 2.00,
-  date          = "2013/07/23",
+  version       = 2.10,
+  date          = "2013/11/03",
   description   = "ConTeXt Lua standard libraries.",
   author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux & Philipp Gesang",
   copyright     = "PRAGMA ADE / ConTeXt Development Team",
@@ -572,8 +573,8 @@ local loadmodule        = lualibs.loadmodule
 
 local lualibs_basic_module = {
   name          = "lualibs-basic",
-  version       = 2.00,
-  date          = "2013/07/23",
+  version       = 2.10,
+  date          = "2013/11/03",
   description   = "ConTeXt Lua libraries -- basic collection.",
   author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux & Philipp Gesang",
   copyright     = "PRAGMA ADE / ConTeXt Development Team",
@@ -611,6 +612,7 @@ if loaded == false then
   loadmodule("lualibs-io.lua")
   loadmodule("lualibs-os.lua")
   loadmodule("lualibs-file.lua")
+  loadmodule("lualibs-gzip.lua")
   loadmodule("lualibs-md5.lua")
   loadmodule("lualibs-dir.lua")
   loadmodule("lualibs-unicode.lua")
@@ -653,8 +655,8 @@ lualibs = lualibs or { }
 
 local lualibs_extended_module = {
   name          = "lualibs-extended",
-  version       = 2.00,
-  date          = "2013/07/23",
+  version       = 2.10,
+  date          = "2013/11/03",
   description   = "ConTeXt Lua libraries -- extended collection.",
   author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux & Philipp Gesang",
   copyright     = "PRAGMA ADE / ConTeXt Development Team",

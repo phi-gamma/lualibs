@@ -41,6 +41,7 @@ Source files:
     lualibs-compat.lua              tex/luatex/lualibs/lualibs-compat.lua
     lualibs-dir.lua                 tex/luatex/lualibs/lualibs-dir.lua
     lualibs-file.lua                tex/luatex/lualibs/lualibs-file.lua
+    lualibs-gzip.lua                tex/luatex/lualibs/lualibs-gzip.lua
     lualibs-function.lua            tex/luatex/lualibs/lualibs-function.lua
     lualibs-io.lua                  tex/luatex/lualibs/lualibs-io.lua
     lualibs-lpeg.lua                tex/luatex/lualibs/lualibs-lpeg.lua
