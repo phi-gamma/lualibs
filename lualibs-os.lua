@@ -197,9 +197,8 @@ end
 -- no need for function anymore as we have more clever code and helpers now
 -- this metatable trickery might as well disappear
 
-os.resolvers = os.resolvers or { } -- will become private
-
-local resolvers = os.resolvers
+local resolvers = os.resolvers or { }
+os.resolvers    = resolvers
 
 setmetatable(os, { __index = function(t,k)
     local r = resolvers[k]
@@ -222,6 +221,8 @@ local function guess()
     return os.resultof("echo $HOSTTYPE") or ""
 end
 
+-- os.bits = 32 | 64
+
 if platform ~= "" then
 
     os.platform = platform
@@ -230,10 +231,14 @@ elseif os.type == "windows" then
 
     -- we could set the variable directly, no function needed here
 
-    function os.resolvers.platform(t,k)
+    -- PROCESSOR_ARCHITECTURE : binary platform
+    -- PROCESSOR_ARCHITEW6432 : OS platform
+
+    function resolvers.platform(t,k)
         local platform, architecture = "", os.getenv("PROCESSOR_ARCHITECTURE") or ""
         if find(architecture,"AMD64") then
-            platform = "mswin-64"
+         -- platform = "mswin-64"
+            platform = "win64"
         else
             platform = "mswin"
         end
@@ -244,7 +249,7 @@ elseif os.type == "windows" then
 
 elseif name == "linux" then
 
-    function os.resolvers.platform(t,k)
+    function resolvers.platform(t,k)
         -- we sometimes have HOSTTYPE set so let's check that first
         local platform, architecture = "", os.getenv("HOSTTYPE") or os.resultof("uname -m") or ""
         if find(architecture,"x86_64") then
@@ -271,7 +276,7 @@ elseif name == "macosx" then
         therefore not permitted to run the 64 bit kernel.
       ]]--
 
-    function os.resolvers.platform(t,k)
+    function resolvers.platform(t,k)
      -- local platform, architecture = "", os.getenv("HOSTTYPE") or ""
      -- if architecture == "" then
      --     architecture = os.resultof("echo $HOSTTYPE") or ""
@@ -294,7 +299,7 @@ elseif name == "macosx" then
 
 elseif name == "sunos" then
 
-    function os.resolvers.platform(t,k)
+    function resolvers.platform(t,k)
         local platform, architecture = "", os.resultof("uname -m") or ""
         if find(architecture,"sparc") then
             platform = "solaris-sparc"
@@ -308,7 +313,7 @@ elseif name == "sunos" then
 
 elseif name == "freebsd" then
 
-    function os.resolvers.platform(t,k)
+    function resolvers.platform(t,k)
         local platform, architecture = "", os.resultof("uname -m") or ""
         if find(architecture,"amd64") then
             platform = "freebsd-amd64"
@@ -322,7 +327,7 @@ elseif name == "freebsd" then
 
 elseif name == "kfreebsd" then
 
-    function os.resolvers.platform(t,k)
+    function resolvers.platform(t,k)
         -- we sometimes have HOSTTYPE set so let's check that first
         local platform, architecture = "", os.getenv("HOSTTYPE") or os.resultof("uname -m") or ""
         if find(architecture,"x86_64") then
@@ -341,13 +346,19 @@ else
     -- os.setenv("MTX_PLATFORM",platform)
     -- os.platform = platform
 
-    function os.resolvers.platform(t,k)
+    function resolvers.platform(t,k)
         local platform = "linux"
         os.setenv("MTX_PLATFORM",platform)
         os.platform = platform
         return platform
     end
 
+end
+
+function resolvers.bits(t,k)
+    local bits = find(os.platform,"64") and 64 or 32
+    os.bits = bits
+    return bits
 end
 
 -- beware, we set the randomseed
