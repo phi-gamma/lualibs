@@ -1,2 +1,4 @@
 testing/*
 *-merged.lua
+*.aux
+*.sh
