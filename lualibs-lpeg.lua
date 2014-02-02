@@ -6,6 +6,10 @@ if not modules then modules = { } end modules ['l-lpeg'] = {
     license   = "see context related readme files"
 }
 
+-- lpeg 12 vs lpeg 10: slower compilation, similar parsing speed (i need to check
+-- if i can use new features like capture / 2 and .B (at first sight the xml
+-- parser is some 5% slower)
+
 -- a new lpeg fails on a #(1-P(":")) test and really needs a + P(-1)
 
 -- move utf    -> l-unicode
@@ -15,14 +19,15 @@ lpeg = require("lpeg")
 
 -- The latest lpeg doesn't have print any more, and even the new ones are not
 -- available by default (only when debug mode is enabled), which is a pitty as
--- as it helps bailign down bottlenecks. Performance seems comparable, although
+-- as it helps nailign down bottlenecks. Performance seems comparable: some 10%
+-- slower pattern compilation, same parsing speed, although,
 --
 -- local p = lpeg.C(lpeg.P(1)^0 * lpeg.P(-1))
--- local a = string.rep("123",10)
+-- local a = string.rep("123",100)
 -- lpeg.match(p,a)
 --
--- is nearly 20% slower and also still suboptimal (i.e. a match that runs from
--- begin to end, one of the cases where string matchers win).
+-- seems slower and is also still suboptimal (i.e. a match that runs from begin
+-- to end, one of the cases where string matchers win).
 
 if not lpeg.print then function lpeg.print(...) print(lpeg.pcode(...)) end end
 
@@ -74,7 +79,9 @@ local lpegtype, lpegmatch, lpegprint = lpeg.type, lpeg.match, lpeg.print
 
 -- let's start with an inspector:
 
-setinspector(function(v) if lpegtype(v) then lpegprint(v) return true end end)
+if setinspector then
+    setinspector(function(v) if lpegtype(v) then lpegprint(v) return true end end)
+end
 
 -- Beware, we predefine a bunch of patterns here and one reason for doing so
 -- is that we get consistent behaviour in some of the visualizers.
@@ -469,7 +476,7 @@ end
 -- local pattern1 = P(1-P(pattern))^0 * P(pattern)   : test for not nil
 -- local pattern2 = (P(pattern) * Cc(true) + P(1))^0 : test for true (could be faster, but not much)
 
-function lpeg.finder(lst,makefunction) -- beware: slower than find with 'patternless finds'
+function lpeg.finder(lst,makefunction,isutf) -- beware: slower than find with 'patternless finds'
     local pattern
     if type(lst) == "table" then
         pattern = P(false)
@@ -485,7 +492,12 @@ function lpeg.finder(lst,makefunction) -- beware: slower than find with 'pattern
     else
         pattern = P(lst)
     end
-    pattern = (1-pattern)^0 * pattern
+    if isutf then
+--         pattern = ((utf8char or 1)-pattern)^0 * pattern
+        pattern = ((utf8char or 1)-pattern)^0 * pattern
+    else
+        pattern = (1-pattern)^0 * pattern
+    end
     if makefunction then
         return function(str)
             return lpegmatch(pattern,str)
