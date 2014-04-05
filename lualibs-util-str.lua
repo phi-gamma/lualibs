@@ -47,10 +47,12 @@ if not number then number = { } end -- temp hack for luatex-fonts
 local stripper = patterns.stripzeros
 
 local function points(n)
+    n = tonumber(n)
     return (not n or n == 0) and "0pt" or lpegmatch(stripper,format("%.5fpt",n/65536))
 end
 
 local function basepoints(n)
+    n = tonumber(n)
     return (not n or n == 0) and "0bp" or lpegmatch(stripper,format("%.5fbp", n*(7200/7227)/65536))
 end
 
