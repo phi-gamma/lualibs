@@ -1,4 +1,8 @@
                         History of the lualibs package
+2014/05/05 v2.1b/
+    * sync with Context beta as of 2014-04-05
+    * remove util-env.lua
+
 2013/31/03 v2.1a/
     * sync with Context beta as of 2013-12-30
 

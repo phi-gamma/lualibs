@@ -59,7 +59,6 @@ Source files:
     lualibs-url.lua                 tex/luatex/lualibs/lualibs-url.lua
     lualibs-util-deb.lua            tex/luatex/lualibs/lualibs-util-deb.lua
     lualibs-util-dim.lua            tex/luatex/lualibs/lualibs-util-dim.lua
-    lualibs-util-env.lua            tex/luatex/lualibs/lualibs-util-env.lua
     lualibs-util-jsn.lua            tex/luatex/lualibs/lualibs-util-jsn.lua
     lualibs-util-lua.lua            tex/luatex/lualibs/lualibs-util-lua.lua
     lualibs-util-prs.lua            tex/luatex/lualibs/lualibs-util-prs.lua
