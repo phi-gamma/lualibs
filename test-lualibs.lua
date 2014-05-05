@@ -12,7 +12,7 @@ local luafiles = {
   "lualibs-string.lua",    "lualibs-table.lua",
   "lualibs-trac-inf.lua",  "lualibs-unicode.lua",
   "lualibs-url.lua",       "lualibs-util-deb.lua",
-  "lualibs-util-dim.lua",  "lualibs-util-env.lua",
+  "lualibs-util-dim.lua",
   "lualibs-util-jsn.lua",  "lualibs-util-lua.lua",
   "lualibs-util-prs.lua",  "lualibs-util-sta.lua",
   "lualibs-util-sto.lua",  "lualibs-util-str.lua",

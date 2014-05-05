@@ -349,7 +349,6 @@ and the derived file lualibs.lua.
 %   lualibs-util-deb.lua      & util-deb.lua   & extra |debug| functionality      \\
 %   lualibs-util-tpl.lua      & util-tpl.lua   & templating                       \\
 %   lualibs-util-sta.lua      & util-sta.lua   & stacker (e.~g. for \abbrev{pdf}) \\
-%   lualibs-util-env.lua      & util-env.lua   & |argv| handling                  \\
 %   lualibs-util-jsn.lua      & util-jsn.lua   & conversion to and from json      \\[1ex]
 %  \end{tabular}
 %  \label{tab:extended}
@@ -733,17 +732,6 @@ local fake_trackers = function (name)
   }
 end
 
-%    \end{macrocode}
-% Among the libraries loaded is \verb|util-env.lua|, which adds
-% \CONTEXT’s own, superior command line argument handler.
-% Packages that rely on their own handling of arguments might not be
-% aware of this, or the library might have been loaded by another package
-% altogether.
-% For these cases we provide a copy of the original \verb|arg| list and
-% restore it after we are done loading.
-%
-%    \begin{macrocode}
-
 local backup_store = { }
 
 local fake_context = function ( )
@@ -751,8 +739,6 @@ local fake_context = function ( )
   if trackers then backup_store.trackers = trackers end
   logs     = fake_logs"logs"
   trackers = fake_trackers"trackers"
-
-  backup_store.argv = table.fastcopy(arg)
 end
 
 
@@ -763,10 +749,8 @@ end
 local unfake_context = function ( )
   if backup_store then
     local bl, bt = backup_store.logs, backup_store.trackers
-    local argv   = backup_store.argv
     if bl   then logs     = bl   end
     if bt   then trackers = bt   end
-    if argv then arg      = argv end
   end
 end
 
@@ -800,11 +784,6 @@ if loaded == false then
   loadmodule("lualibs-util-deb.lua")--- extra debugging
   loadmodule("lualibs-util-tpl.lua")--- templating
   loadmodule("lualibs-util-sta.lua")--- stacker (for writing pdf)
-  -------------------------------------!data-* -- Context specific
-  ----------("lualibs-util-lib.lua")---!swiglib; there is a luatex-swiglib
-  loadmodule("lualibs-util-env.lua")--- environment arguments
-  ----------("lualibs-mult-ini.lua")---
-  ----------("lualibs-core-con.lua")---
 end
 
 unfake_context() --- TODO check if this works at runtime
