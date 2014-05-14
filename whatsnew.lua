@@ -67,7 +67,6 @@ local filenames = {
   ["util"] = {
     "deb",
     "dim",
-    "env",
     "jsn",
     "lua",
     "prs",
