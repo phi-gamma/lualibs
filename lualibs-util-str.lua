@@ -216,6 +216,7 @@ local striplinepatterns = {
     ["retain"]              = p_retain_normal,
     ["retain and collapse"] = p_retain_collapse,
     ["retain and no empty"] = p_retain_noempty,
+    ["collapse"]            = patterns.collapser, -- how about: stripper fullstripper
 }
 
 strings.striplinepatterns = striplinepatterns
@@ -223,6 +224,8 @@ strings.striplinepatterns = striplinepatterns
 function strings.striplines(str,how)
     return str and lpegmatch(how and striplinepatterns[how] or p_prune_collapse,str) or str
 end
+
+-- also see: string.collapsespaces
 
 strings.striplong = strings.striplines -- for old times sake
 
@@ -534,7 +537,7 @@ end
 -- We could probably use just %s with integers but who knows what Lua 5.3 will do? So let's
 -- for the moment use %i.
 
-local format_F = function()
+local format_F = function() -- beware, no cast to number
     n = n + 1
     if not f or f == "" then
         return format("(((a%s > -0.0000000005 and a%s < 0.0000000005) and '0') or format((a%s %% 1 == 0) and '%%i' or '%%.9f',a%s))",n,n,n,n)
@@ -1091,3 +1094,23 @@ end
 -- string.formatteds = formatteds
 --
 -- setmetatable(formatteds, { __index = make, __call = use })
+
+-- This is a somewhat silly one used in commandline reconstruction but the older
+-- method, using a combination of fine, gsub, quoted and unquoted was not that
+-- reliable.
+--
+-- '"foo"bar \"and " whatever"' => "foo\"bar \"and \" whatever"
+-- 'foo"bar \"and " whatever'   => "foo\"bar \"and \" whatever"
+
+local dquote = patterns.dquote -- P('"')
+local equote = patterns.escaped + dquote / '\\"' + 1
+local space  = patterns.space
+local cquote = Cc('"')
+
+local pattern =
+    Cs(dquote * (equote - P(-2))^0 * dquote)                    -- we keep the outer but escape unescaped ones
+  + Cs(cquote * (equote - space)^0 * space * equote^0 * cquote) -- we escape unescaped ones
+
+function string.optionalquoted(str)
+    return lpegmatch(pattern,str) or str
+end
