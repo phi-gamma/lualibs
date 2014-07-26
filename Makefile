@@ -34,6 +34,7 @@ DISTDIR = ./lualibs
 TEXMFROOT = ./texmf
 
 CTAN_ZIP = $(NAME).zip
+CTAN_ZIPSIG	= $(CTAN_ZIP).asc
 TDS_ZIP = $(NAME).tds.zip
 ZIPS = $(CTAN_ZIP) $(TDS_ZIP)
 
@@ -46,6 +47,7 @@ all: $(GENERATED) $(DOC_TEX)
 doc: $(COMPILED)
 unpack: $(UNPACKED)
 ctan: check $(CTAN_ZIP)
+sign: $(CTAN_ZIPSIG)
 tds: $(TDS_ZIP)
 world: all ctan
 
@@ -82,6 +84,11 @@ $(CTAN_ZIP): $(ALL_FILES) $(TDS_ZIP)
 	@$(RM) -- $@
 	$(make-ctandir)
 	@zip -r -9 $@ $(DISTDIR) $(TDS_ZIP) >/dev/null
+
+$(CTAN_ZIPSIG): $(CTAN_ZIP)
+	@echo "Signing package $(CTAN_ZIP)"
+	@$(RM) -- $@
+	@gpg --batch --armor --detach-sign "$(CTAN_ZIP)"
 
 define run-install
 @mkdir -p $(RUNDIR) && cp $(RUNFILES) $(RUNDIR)
