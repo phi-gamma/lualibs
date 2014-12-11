@@ -219,10 +219,12 @@ local striplinepatterns = {
     ["collapse"]            = patterns.collapser, -- how about: stripper fullstripper
 }
 
+setmetatable(striplinepatterns,{ __index = function(t,k) return p_prune_collapse end })
+
 strings.striplinepatterns = striplinepatterns
 
 function strings.striplines(str,how)
-    return str and lpegmatch(how and striplinepatterns[how] or p_prune_collapse,str) or str
+    return str and lpegmatch(striplinepatterns[how],str) or str
 end
 
 -- also see: string.collapsespaces
@@ -537,7 +539,7 @@ end
 -- We could probably use just %s with integers but who knows what Lua 5.3 will do? So let's
 -- for the moment use %i.
 
-local format_F = function() -- beware, no cast to number
+local format_F = function(f) -- beware, no cast to number
     n = n + 1
     if not f or f == "" then
         return format("(((a%s > -0.0000000005 and a%s < 0.0000000005) and '0') or format((a%s %% 1 == 0) and '%%i' or '%%.9f',a%s))",n,n,n,n)
@@ -842,7 +844,7 @@ local builder = Cs { "start",
               + V("m") + V("M") -- new
               + V("z") -- new
               --
-              + V("*") -- ignores probably messed up %
+           -- + V("?") -- ignores probably messed up %
             )
           + V("*")
         )
@@ -897,6 +899,7 @@ local builder = Cs { "start",
     ["A"] = (prefix_any * P("A")) / format_A, -- %A => "..." (forces tostring)
     --
     ["*"] = Cs(((1-P("%"))^1 + P("%%")/"%%")^1) / format_rest, -- rest (including %%)
+    ["?"] = Cs(((1-P("%"))^1               )^1) / format_rest, -- rest (including %%)
     --
     ["!"] = Carg(2) * prefix_any * P("!") * C((1-P("!"))^1) * P("!") / format_extension,
 }
