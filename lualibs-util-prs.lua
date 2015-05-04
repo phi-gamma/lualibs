@@ -333,12 +333,18 @@ end
 
 -- for mtx-context etc: aaaa bbbb cccc=dddd eeee=ffff
 
-local str      = C((1-whitespace-equal)^1)
+local str      = Cs(lpegpatterns.unquoted) + C((1-whitespace-equal)^1)
 local setting  = Cf( Carg(1) * (whitespace^0 * Cg(str * whitespace^0 * (equal * whitespace^0 * str + Cc(""))))^1,rawset)
 local splitter = setting^1
 
 function utilities.parsers.options_to_hash(str,target)
     return str and lpegmatch(splitter,str,1,target or { }) or { }
+end
+
+local splitter = lpeg.tsplitat(" ")
+
+function utilities.parsers.options_to_array(str)
+    return str and lpegmatch(splitter,str) or { }
 end
 
 -- for chem (currently one level)
@@ -524,7 +530,7 @@ function parsers.rfc4180splitter(specification)
     local field       = escaped + non_escaped + Cc("")
     local record      = Ct(field * (separator * field)^1)
     local headerline  = record * Cp()
-    local wholeblob   = Ct((newline^-1 * record)^0)
+    local wholeblob   = Ct((newline^(specification.strict and -1 or 1) * record)^0)
     return function(data,getheader)
         if getheader then
             local header, position = lpegmatch(headerline,data)
