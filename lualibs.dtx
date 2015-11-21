@@ -363,11 +363,14 @@ and the derived file lualibs.lua.
 % This is achieved by means of \identifier{mtx-package}, a script for bundling
 % \LUA code shipped with \CONTEXT.
 % This concatenates the code of several \LUA files into a single file that is
-% both easier to distribute and loading (marginally) faster.
+% both easier to distribute and loading marginally faster.
 % \identifier{mtx-package} ensures that the code from each file gets its
 % own closure and strips newlines and comments, resulting in a smaller payload.
 % Another package that relies on it heavily is the font loader as contained in
 % \identifier{luaotfload} and \identifier{luatex-fonts}.
+% \identifier{Luaotfload}, a port of the \CONTEXT fontloader for Plain and
+% \LATEX, has a hard dependency on the functionality provided by the %
+\identifer{Lualibs} package. The packages should not be updated independently.
 %
 % If \CONTEXT is installed on the system, the merge files can be created
 % by running:
