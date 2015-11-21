@@ -149,7 +149,7 @@ and the derived file lualibs.lua.
 
 \definehighlight    [fileent][\ttfamily\restoreunderscore]         %% files, dirs
 \definehighlight   [texmacro][\sffamily\itshape\textbackslash]     %% cs
-\definehighlight[luafunction][\sffamily\itshape\restoreunderscore] %% lua identifiers
+\definehighlight   [luaident][\sffamily\itshape\restoreunderscore] %% lua identifiers
 \definehighlight [identifier][\sffamily]                           %% names
 \definehighlight     [abbrev][\rmfamily\scshape]                   %% acronyms
 \definehighlight   [emphasis][\rmfamily\slshape]                   %% level 1 emph
@@ -246,7 +246,7 @@ and the derived file lualibs.lua.
 %   \CONTEXT loads with every run.
 % }
 % the \identifier{lualibs} package can skip loading of the latter on demand.
-% The \luafunction{config} table needs to be present prior to loading the
+% The \luaident{config} table needs to be present prior to loading the
 % package for this to work (in the future this may be achieved by an option of
 % \texmacro{usepackage}) for \LATEX users).
 % In the \verb|lualibs| field, set \verb|load_extended| to false:
@@ -282,7 +282,7 @@ and the derived file lualibs.lua.
 %
 % \noindent
 % If your code is run by the \fileent{texlua} intepreter, you will need to
-% initialize \luafunction{kpse} library so that |require()| can find files
+% initialize \luaident{kpse} library so that |require()| can find files
 % under \abbrev{texmf} tree: |kpse.set_program_name("luatex")|.
 %
 % \section{Files}
@@ -370,7 +370,7 @@ and the derived file lualibs.lua.
 % \identifier{luaotfload} and \identifier{luatex-fonts}.
 % \identifier{Luaotfload}, a port of the \CONTEXT fontloader for Plain and
 % \LATEX, has a hard dependency on the functionality provided by the %
-\identifer{Lualibs} package. The packages should not be updated independently.
+% \identifier{Lualibs} package. The packages should not be updated independently.
 %
 % If \CONTEXT is installed on the system, the merge files can be created
 % by running:
