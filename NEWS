@@ -1,7 +1,13 @@
                         History of the lualibs package
+2016/04/06 v2.4/
+    * sync with Context beta as of 2016-04-06
+    * basic maintenance
+    * include util-fil.lua, a fontloader requirement, in the extended
+      collection
+
 2015/12/02 v2.3/
     * sync with Context beta as of 2015-11-19
-    * basic maintainance
+    * basic maintenance
 
 2014/05/05 v2.2/
     * sync with Context beta as of 2014-07-26
