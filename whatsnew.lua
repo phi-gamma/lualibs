@@ -17,7 +17,7 @@
 local prefixsep     = "-"
 local namespace     = "lualibs"
 local luasuffix     = ".lua"
-local basedir       = "/home/phg/context/tex/texmf-context/tex/context/base"
+local basedir       = "/home/phg/context/tex/texmf-context/tex/context/base/mkiv"
 local cmd_diff      = [[diff "%s" "%s"]]
 
 -----------------------------------------------------------------------

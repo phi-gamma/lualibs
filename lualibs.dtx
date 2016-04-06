@@ -1,6 +1,6 @@
 % \iffalse meta-comment
 %
-% Copyright (C) 2009--2015 by
+% Copyright (C) 2009--2016 by
 %
 %       PRAGMA ADE / ConTeXt Development Team
 %       The LuaLaTeX Dev Team
@@ -37,7 +37,7 @@
 \input docstrip.tex
 \Msg{************************************************************************}
 \Msg{* Installation}
-\Msg{* Package: lualibs 2015-12-02 v2.3 Lua additional functions.}
+\Msg{* Package: lualibs 2016-04-06 v2.4 Lua additional functions.}
 \Msg{************************************************************************}
 
 \keepsilent
@@ -48,7 +48,7 @@
 \preamble
 This is a generated file.
 
-Copyright (C) 2009--2015 by
+Copyright (C) 2009--2016 by
         PRAGMA ADE / ConTeXt Development Team
         The LuaLaTeX Dev Team
 
@@ -107,7 +107,7 @@ and lualibs-extended.lua.
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesFile{lualibs.drv}
-  [2015/12/02 v2.3 Lua Libraries.]
+  [2016/04/06 v2.4 Lua Libraries.]
 \documentclass{ltxdoc}
 \usepackage{fancyvrb,xspace}
 \usepackage[x11names]{xcolor}
@@ -208,9 +208,9 @@ and lualibs-extended.lua.
 % \GetFileInfo{lualibs.drv}
 %
 % \title{The \identifier{lualibs} package}
-% \date{2015/12/02 v2.3}
+% \date{2016/04/06 v2.4}
 % \author{Élie Roux      · \email{elie.roux@telecom-bretagne.eu}\\
-%         Philipp Gesang · \email{philipp.gesang@alumni.uni-heidelberg.de}}
+%         Philipp Gesang · \email{phg@phi-gamma.net}}
 %
 % \maketitle
 %
@@ -346,6 +346,7 @@ and lualibs-extended.lua.
 %  \begin{tabular}{l l l}
 %   \identifier{lualibs} name & \CONTEXT name  & primary purpose                  \\[1ex]
 %   lualibs-util-str.lua      & util-str.lua   & extra |string| functions         \\
+%   lualibs-util-fil.lua      & util-fil.lua   & extra |file| functions           \\
 %   lualibs-util-tab.lua      & util-tab.lua   & extra |table| functions          \\
 %   lualibs-util-sto.lua      & util-sto.lua   & table allocation                 \\
 %   lualibs-util-prs.lua      & util-sto.lua   & miscellaneous parsers            \\
@@ -426,8 +427,8 @@ lualibs = lualibs or { }
 
 lualibs.module_info = {
   name          = "lualibs",
-  version       = 2.3,
-  date          = "2015-12-02",
+  version       = 2.4,
+  date          = "2016-04-06",
   description   = "ConTeXt Lua standard libraries.",
   author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux & Philipp Gesang",
   copyright     = "PRAGMA ADE / ConTeXt Development Team",
@@ -581,8 +582,8 @@ local loadmodule        = lualibs.loadmodule
 
 local lualibs_basic_module = {
   name          = "lualibs-basic",
-  version       = 2.3,
-  date          = "2015-12-02",
+  version       = 2.4,
+  date          = "2016-04-06",
   description   = "ConTeXt Lua libraries -- basic collection.",
   author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux & Philipp Gesang",
   copyright     = "PRAGMA ADE / ConTeXt Development Team",
@@ -663,8 +664,8 @@ lualibs = lualibs or { }
 
 local lualibs_extended_module = {
   name          = "lualibs-extended",
-  version       = 2.3,
-  date          = "2015-12-02",
+  version       = 2.4,
+  date          = "2016-04-06",
   description   = "ConTeXt Lua libraries -- extended collection.",
   author        = "Hans Hagen, PRAGMA-ADE, Hasselt NL & Elie Roux & Philipp Gesang",
   copyright     = "PRAGMA ADE / ConTeXt Development Team",
@@ -776,6 +777,7 @@ end
 
 if loaded == false then
   loadmodule("lualibs-util-str.lua")--- string formatters (fast)
+  loadmodule("lualibs-util-fil.lua")--- extra file helpers
   loadmodule("lualibs-util-tab.lua")--- extended table operations
   loadmodule("lualibs-util-sto.lua")--- storage (hash allocation)
   ----------("lualibs-util-pck.lua")---!packers; necessary?
