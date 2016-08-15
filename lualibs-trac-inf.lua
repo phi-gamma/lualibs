@@ -14,7 +14,7 @@ if not modules then modules = { } end modules ['trac-inf'] = {
 local type, tonumber, select = type, tonumber, select
 local format, lower, find = string.format, string.lower, string.find
 local concat = table.concat
-local clock = os.gettimeofday or os.clock -- should go in environment
+local clock  = os.gettimeofday or os.clock -- should go in environment
 
 local setmetatableindex = table.setmetatableindex
 local serialize         = table.serialize
@@ -183,6 +183,7 @@ end
 
 function statistics.runtime()
     stoptiming(statistics)
+    stoptiming(statistics) -- somehow we can start the timer twice, but where
     return statistics.formatruntime(elapsedtime(statistics))
 end
 

@@ -36,6 +36,8 @@ local lbrace      = P("{")
 local rbrace      = P("}")
 local lparent     = P("(")
 local rparent     = P(")")
+local lbracket    = P("[")
+local rbracket    = P("]")
 local period      = S(".")
 local punctuation = S(".,:;")
 local spacer      = lpegpatterns.spacer
@@ -44,8 +46,9 @@ local newline     = lpegpatterns.newline
 local anything    = lpegpatterns.anything
 local endofstring = lpegpatterns.endofstring
 
-local nobrace     = 1 - (lbrace  + rbrace )
-local noparent    = 1 - (lparent + rparent)
+local nobrace     = 1 - (lbrace   + rbrace )
+local noparent    = 1 - (lparent  + rparent)
+local nobracket   = 1 - (lbracket + rbracket)
 
 -- we could use a Cf Cg construct
 
@@ -56,11 +59,12 @@ lpegpatterns.balanced = P {
     [2] = left * V(1) * right
 }
 
-local nestedbraces  = P { lbrace * (nobrace + V(1))^0 * rbrace }
-local nestedparents = P { lparent * (noparent + V(1))^0 * rparent }
-local spaces        = space^0
-local argument      = Cs((lbrace/"") * ((nobrace + nestedbraces)^0) * (rbrace/""))
-local content       = (1-endofstring)^0
+local nestedbraces   = P { lbrace   * (nobrace   + V(1))^0 * rbrace }
+local nestedparents  = P { lparent  * (noparent  + V(1))^0 * rparent }
+local nestedbrackets = P { lbracket * (nobracket + V(1))^0 * rbracket }
+local spaces         = space^0
+local argument       = Cs((lbrace/"") * ((nobrace + nestedbraces)^0) * (rbrace/""))
+local content        = (1-endofstring)^0
 
 lpegpatterns.nestedbraces  = nestedbraces  -- no capture
 lpegpatterns.nestedparents = nestedparents -- no capture
@@ -78,10 +82,6 @@ local key       = C((1-space-equal-comma)^1)
 local pattern_b = spaces * comma^0 * spaces * (key * ((spaces * equal * spaces * value) + C("")))
 
 -- "a=1, b=2, c=3, d={a{b,c}d}, e=12345, f=xx{a{b,c}d}xx, g={}" : outer {} removes, leading spaces ignored
-
--- todo: rewrite to fold etc
---
--- parse = lpeg.Cf(lpeg.Carg(1) * lpeg.Cg(key * equal * value) * separator^0,rawset)^0 -- lpeg.match(parse,"...",1,hash)
 
 local hash = { }
 
@@ -192,6 +192,33 @@ function parsers.settings_to_array(str,strict)
         return { str }
     end
 end
+
+function parsers.settings_to_numbers(str)
+    if not str or str == "" then
+        return { }
+    end
+    if type(str) == "table" then
+        -- fall through
+    elseif find(str,",",1,true) then
+        str = lpegmatch(pattern,str)
+    else
+        return { tonumber(str) }
+    end
+    for i=1,#str do
+        str[i] = tonumber(str[i])
+    end
+    return str
+end
+
+local value     = P(lbrace * C((nobrace + nestedbraces)^0) * rbrace)
+                + C((nestedbraces + nestedbrackets + nestedparents + (1-comma))^0)
+local pattern   = spaces * Ct(value*(separator*value)^0)
+
+function parsers.settings_to_array_obey_fences(str)
+    return lpegmatch(pattern,str)
+end
+
+-- inspect(parsers.settings_to_array_obey_fences("url(http://a,b.c)"))
 
 -- this one also strips end spaces before separators
 --

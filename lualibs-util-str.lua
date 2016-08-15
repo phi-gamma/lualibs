@@ -822,6 +822,10 @@ end
 
 -- aA b cC d eE f gG hH iI jJ lL mM N o p qQ r sS tT uU wW xX z
 
+-- extensions : %!tag!
+
+-- can be made faster but not called that often
+
 local builder = Cs { "start",
     start = (
         (
@@ -850,10 +854,10 @@ local builder = Cs { "start",
               + V("a") -- new
               + V("A") -- new
               + V("j") + V("J") -- stripped e E
-              + V("m") + V("M") -- new
+              + V("m") + V("M") -- new (formatted number)
               + V("z") -- new
               --
-           -- + V("?") -- ignores probably messed up %
+           -- + V("?") -- ignored, probably messed up %
             )
           + V("*")
         )
