@@ -486,12 +486,12 @@ end
 
 local selfmapper = { __index = function(t,k) t[k] = k return k end }
 
-function table.twowaymapper(t)
-    if not t then
-        t = { }
-    else
-        local zero = rawget(t,0)
-        for i=zero or 1,#t do
+function table.twowaymapper(t)    -- takes a 0/1 .. n indexed table and returns
+    if not t then                 -- it with  string-numbers as indices + reverse
+        t = { }                   -- mapping (all strings) .. used in cvs etc but
+    else                          -- typically a helper that one forgets about
+        local zero = rawget(t,0)  -- so it might move someplace else
+        for i=zero and 0 or 1,#t do
             local ti = t[i]       -- t[1]     = "one"
             if ti then
                 local i = tostring(i)
@@ -499,7 +499,6 @@ function table.twowaymapper(t)
                 t[ti]   = i       -- t["one"] = "1"
             end
         end
-        t[""] = zero or ""
     end
  -- setmetatableindex(t,"key")
     setmetatable(t,selfmapper)

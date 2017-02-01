@@ -125,3 +125,14 @@ mrproper: clean
 	@$(RM) -r $(DISTDIR)
 
 merge: $(MERGED)
+
+ifndef DESTDIR
+install:
+	$(error "in order to install you need to provide $$DESTDIR")
+else
+install: $(TDS_ZIP)
+	$(info installing to destination “$(DESTDIR)”)
+	install -dm755 "$(DESTDIR)"
+	unzip "$(TDS_ZIP)" -d "$(DESTDIR)"
+endif
+
